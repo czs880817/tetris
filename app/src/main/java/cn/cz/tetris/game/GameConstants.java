@@ -11,7 +11,7 @@ public class GameConstants {
     public static final int LEVEL_HARD = 1;
     public static final int LEVEL_NIGHTMARE = 2;
 
-    public static final long SPEED_1 = 500L;
+    public static final int SPEED_1 = 60;
 
     public static final int COLOR_RED = 0xFF0000;
     public static final int COLOR_GREEN = 0x00FF00;

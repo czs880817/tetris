@@ -35,7 +35,7 @@ public class Piece implements Parcelable {
                 break;
         }
 
-        int pieceType = mRandom.nextInt(5);
+        int pieceType = mRandom.nextInt(7);
         switch (level) {
             case GameConstants.LEVEL_NORMAL:
                 break;
@@ -51,16 +51,22 @@ public class Piece implements Parcelable {
                 blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[3][2] = color;
                 break;
             case 1:
-                blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[3][2] = color;
+                blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[1][1] = color;
                 break;
             case 2:
-                blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[3][2] = color;
+                blocks[0][1] = blocks[1][1] = blocks[2][1] = blocks[3][1] = color;
                 break;
             case 3:
-                blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[3][2] = color;
+                blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[1][2] = color;
                 break;
             case 4:
-                blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[3][2] = color;
+                blocks[2][1] = blocks[2][2] = blocks[3][2] = blocks[1][1] = color;
+                break;
+            case 5:
+                blocks[3][1] = blocks[3][2] = blocks[2][1] = blocks[1][1] = color;
+                break;
+            case 6:
+                blocks[3][1] = blocks[3][2] = blocks[2][2] = blocks[1][2] = color;
                 break;
         }
     }

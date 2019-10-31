@@ -11,6 +11,8 @@ public class GameSurfaceView extends GLSurfaceView implements View.OnTouchListen
     private GestureDetector mGestureDetector;
     private ITouchInterface iTouchInterface;
 
+    private float mDistance = 0.0f;
+
     public GameSurfaceView(Context context) {
         super(context);
         init();
@@ -70,6 +72,9 @@ public class GameSurfaceView extends GLSurfaceView implements View.OnTouchListen
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (velocityY > 5000.0f) {
+                iTouchInterface.onDropDown();
+            }
             return true;
         }
     };

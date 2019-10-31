@@ -19,6 +19,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import cn.cz.tetris.R;
 import cn.cz.tetris.game.GameConstants;
+import cn.cz.tetris.game.GameEngine;
 import cn.cz.tetris.utils.DebugLog;
 
 public class GameRenderer implements GLSurfaceView.Renderer {
@@ -38,19 +39,20 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     };
 
     private Context mContext;
-    private IRendererInterface iRendererInterface;
+    private GameEngine mGameEngine;
+    private int mCount = 0;
 
     private FloatBuffer mVertexBuffer;
-    private FloatBuffer mTextureCoordBuffer;
+    private FloatBuffer mTextureCoordinateBuffer;
     private IntBuffer mDataBuffer;
 
     private int mPositionLocation;
-    private int mTextureCoordLocation;
+    private int mTextureCoordinateLocation;
     private int mDataLocation;
 
-    public GameRenderer(Context context, IRendererInterface rendererInterface) {
+    public GameRenderer(Context context, GameEngine gameEngine) {
         mContext = context;
-        iRendererInterface = rendererInterface;
+        mGameEngine = gameEngine;
     }
 
     @Override
@@ -59,15 +61,15 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
         mVertexBuffer = ByteBuffer.allocateDirect(SQUARE_COORDINATES.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         mVertexBuffer.put(SQUARE_COORDINATES).position(0);
-        mTextureCoordBuffer = ByteBuffer.allocateDirect(TEXTURE_COORDINATES.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        mTextureCoordBuffer.put(TEXTURE_COORDINATES).position(0);
+        mTextureCoordinateBuffer = ByteBuffer.allocateDirect(TEXTURE_COORDINATES.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mTextureCoordinateBuffer.put(TEXTURE_COORDINATES).position(0);
         mDataBuffer = ByteBuffer.allocateDirect(GameConstants.LAND_SIZE * GameConstants.PORT_SIZE * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
 
         int program = buildProgram();
         GLES20.glUseProgram(program);
 
         mPositionLocation = GLES20.glGetAttribLocation(program, "vPosition");
-        mTextureCoordLocation = GLES20.glGetAttribLocation(program, "vTexCoord");
+        mTextureCoordinateLocation = GLES20.glGetAttribLocation(program, "vTexCoord");
         mDataLocation = GLES20.glGetUniformLocation(program, "data");
     }
 
@@ -83,18 +85,25 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
         GLES20.glEnableVertexAttribArray(mPositionLocation);
         GLES20.glVertexAttribPointer(mPositionLocation, 2, GLES20.GL_FLOAT, false, 4 * 2, mVertexBuffer);
-        GLES20.glEnableVertexAttribArray(mTextureCoordLocation);
-        GLES20.glVertexAttribPointer(mTextureCoordLocation, 2, GLES20.GL_FLOAT, false, 4 * 2, mTextureCoordBuffer);
+        GLES20.glEnableVertexAttribArray(mTextureCoordinateLocation);
+        GLES20.glVertexAttribPointer(mTextureCoordinateLocation, 2, GLES20.GL_FLOAT, false, 4 * 2, mTextureCoordinateBuffer);
 
-        if (iRendererInterface != null) {
-            int[] data = iRendererInterface.getBlocksData();
-            mDataBuffer.put(data).position(0);
-            GLES20.glUniform1iv(mDataLocation, data.length, mDataBuffer);
+        if (mGameEngine.isFastMode()) {
+            mGameEngine.run();
+        } else if (mCount == mGameEngine.getSpeed()) {
+            mCount = 0;
+            mGameEngine.run();
+        } else {
+            mCount++;
         }
+
+        int[] data = mGameEngine.getRendererData();
+        mDataBuffer.put(data).position(0);
+        GLES20.glUniform1iv(mDataLocation, data.length, mDataBuffer);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
         GLES20.glDisableVertexAttribArray(mPositionLocation);
-        GLES20.glDisableVertexAttribArray(mTextureCoordLocation);
+        GLES20.glDisableVertexAttribArray(mTextureCoordinateLocation);
 
         GLES20.glFlush();
     }

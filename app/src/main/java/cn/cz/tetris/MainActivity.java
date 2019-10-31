@@ -14,14 +14,12 @@ import cn.cz.tetris.game.IGameInterface;
 import cn.cz.tetris.game.Piece;
 import cn.cz.tetris.music.MusicService;
 import cn.cz.tetris.renderer.GameRenderer;
-import cn.cz.tetris.renderer.IRendererInterface;
 import cn.cz.tetris.view.GameSurfaceView;
 
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
         GameSurfaceView.ITouchInterface,
-        IGameInterface,
-        IRendererInterface {
+        IGameInterface {
     private static final String TAG = "MainActivity";
 
     private static final int REQ_SETTING = 1000;
@@ -66,12 +64,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mGameEngine.stopGame();
-    }
-
-    @Override
     public void onBackPressed() {
         MusicService.stopMusic(this);
         super.onBackPressed();
@@ -86,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_SETTING && resultCode == RESULT_OK) {
-
+            mGameEngine.readSetting();
         }
     }
 
@@ -109,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onDropDown() {
-        mGameEngine.dropDown(true);
+        mGameEngine.setFastMode();
     }
 
     @Override
@@ -132,18 +124,13 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    @Override
-    public int[] getBlocksData() {
-        return mGameEngine.getRendererData();
-    }
-
     private void initView(Bundle savedInstanceState) {
         findViewById(R.id.start_game).setOnClickListener(this);
         findViewById(R.id.setting).setOnClickListener(this);
 
         mSurfaceView = findViewById(R.id.gl_surface_view);
         mSurfaceView.setTouchInterface(this);
-        mRenderer = new GameRenderer(this, this);
+        mRenderer = new GameRenderer(this, mGameEngine);
         mSurfaceView.setRenderer(mRenderer);
 
         if (savedInstanceState == null) {

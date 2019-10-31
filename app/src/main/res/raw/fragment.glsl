@@ -5,9 +5,22 @@ uniform int data[200];
 
 #define LAND_COUNT 10.0
 #define PORT_COUNT 20.0
+#define COLOR_BASE 256.0
 
 vec3 getColor(int iColor) {
-    return vec3(0.0, 0.0, 1.0);
+    float fColor = float(iColor);
+    vec3 res = vec3(0.0);
+
+    float temp = mod(fColor, COLOR_BASE);
+    res.b = temp / COLOR_BASE;
+    fColor = (fColor - temp) / COLOR_BASE;
+
+    temp = mod(fColor, COLOR_BASE);
+    res.g = temp / COLOR_BASE;
+    fColor = (fColor - temp) / COLOR_BASE;
+
+    res.r = fColor / COLOR_BASE;
+    return res;
 }
 
 void main() {
@@ -38,6 +51,6 @@ void main() {
         gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     } else {
         vec3 color = getColor(data[index]);
-        gl_FragColor = vec4(mix(color, color * 0.1, distance(center, fragCoord) / distance(center, rt)), 1.0);
+        gl_FragColor = vec4(mix(color + 0.5, color, distance(center, fragCoord) / distance(center, rt)), 1.0);
     }
 }

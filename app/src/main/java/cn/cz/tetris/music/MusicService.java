@@ -82,26 +82,26 @@ public class MusicService extends Service {
     }
 
     public static void startMusic(Context context) {
-        //Intent intent = new Intent(context, MusicService.class);
-        //intent.putExtra(STR_COMMAND, COMMAND_START);
-        //context.startService(intent);
+        Intent intent = new Intent(context, MusicService.class);
+        intent.putExtra(STR_COMMAND, COMMAND_START);
+        context.startService(intent);
     }
 
     public static void stopMusic(Context context) {
-        //Intent intent = new Intent(context, MusicService.class);
-        //intent.putExtra(STR_COMMAND, COMMAND_STOP);
-        //context.startService(intent);
+        Intent intent = new Intent(context, MusicService.class);
+        intent.putExtra(STR_COMMAND, COMMAND_STOP);
+        context.startService(intent);
     }
 
     public static void resumeMusic(Context context) {
-        //Intent intent = new Intent(context, MusicService.class);
-        //intent.putExtra(STR_COMMAND, COMMAND_RESUME);
-        //context.startService(intent);
+        Intent intent = new Intent(context, MusicService.class);
+        intent.putExtra(STR_COMMAND, COMMAND_RESUME);
+        context.startService(intent);
     }
 
     public static void pauseMusic(Context context) {
-        //Intent intent = new Intent(context, MusicService.class);
-        //intent.putExtra(STR_COMMAND, COMMAND_PAUSE);
-        //context.startService(intent);
+        Intent intent = new Intent(context, MusicService.class);
+        intent.putExtra(STR_COMMAND, COMMAND_PAUSE);
+        context.startService(intent);
     }
 }

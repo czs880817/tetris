@@ -5,8 +5,6 @@ import android.util.Pair;
 import android.util.SparseIntArray;
 
 import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import cn.cz.tetris.utils.DebugLog;
 import cn.cz.tetris.utils.SPUtils;
@@ -25,14 +23,15 @@ public class GameEngine {
     private int[] mTempColors;
     private SparseIntArray mTempBorders;
 
-    private Timer mTimer;
+    private boolean mIsFastMode = false;
+    private boolean mGameOver = false;
     private volatile boolean mIsPause = false;
     private int mScore = 0;
     private int mMaxScore;
 
     // 设置信息
     private int mLevel;
-    private long mSpeed;
+    private int mSpeed;
 
     public GameEngine(Context context, IGameInterface gameInterface) {
         mContext = context;
@@ -58,24 +57,45 @@ public class GameEngine {
         mPiecePair.second.refresh(mLevel);
     }
 
-    public int[][] getBlocks() {
-        return mBlocks;
+    public void setFastMode() {
+        mIsFastMode = true;
+    }
+
+    public boolean isFastMode() {
+        return mIsFastMode;
+    }
+
+    public int getSpeed() {
+        return mSpeed;
+    }
+
+    public void run() {
+        if (mIsPause || mGameOver) {
+            return;
+        }
+
+        if (needShowNext()) {
+            mIsFastMode = false;
+            if (isFailing()) {
+                mGameOver = true;
+                DebugLog.i(TAG, "Game over!");
+                if (mScore > mMaxScore) {
+                    SPUtils.setMaxScore(mContext, mScore);
+                }
+                iGameInterface.onFailed(mScore);
+            } else {
+                addNewPiece();
+                if (needAddScore()) {
+                    iGameInterface.onScoreAdded(mScore);
+                }
+            }
+        } else {
+            dropDown();
+        }
     }
 
     public void startGame() {
-        if (mTimer == null) {
-            addNewPiece();
-            mTimer = new Timer();
-            mTimer.scheduleAtFixedRate(mTimerTask, mSpeed, mSpeed);
-        }
-    }
-
-    public void stopGame() {
-        if (mTimer != null) {
-            mTimer.cancel();
-            mTimer.purge();
-            mTimer = null;
-        }
+        addNewPiece();
     }
 
     public void resumeGame() {
@@ -98,25 +118,6 @@ public class GameEngine {
             }
         }
         return mRendererData;
-    }
-
-    public void dropDown(boolean isFast) {
-        if (isFast) {
-
-        } else {
-            for (int i = 0; i != mTempColors.length; i++) {
-                if (mMovingCoordinates[i][0] != GameConstants.INVALID_VALUE) {
-                    mTempColors[i] = mBlocks[mMovingCoordinates[i][0]][mMovingCoordinates[i][1]];
-                    mBlocks[mMovingCoordinates[i][0]][mMovingCoordinates[i][1]] = 0;
-                }
-            }
-
-            for (int i = 0; i != mTempColors.length; i++) {
-                if (mMovingCoordinates[i][0] != GameConstants.INVALID_VALUE) {
-                    mBlocks[++mMovingCoordinates[i][0]][mMovingCoordinates[i][1]] = mTempColors[i];
-                }
-            }
-        }
     }
 
     public void translate(boolean isLeft) {
@@ -147,6 +148,21 @@ public class GameEngine {
 
     public void rotate() {
 
+    }
+
+    private void dropDown() {
+        for (int i = 0; i != mTempColors.length; i++) {
+            if (mMovingCoordinates[i][0] != GameConstants.INVALID_VALUE) {
+                mTempColors[i] = mBlocks[mMovingCoordinates[i][0]][mMovingCoordinates[i][1]];
+                mBlocks[mMovingCoordinates[i][0]][mMovingCoordinates[i][1]] = 0;
+            }
+        }
+
+        for (int i = 0; i != mTempColors.length; i++) {
+            if (mMovingCoordinates[i][0] != GameConstants.INVALID_VALUE) {
+                mBlocks[++mMovingCoordinates[i][0]][mMovingCoordinates[i][1]] = mTempColors[i];
+            }
+        }
     }
 
     private boolean needShowNext() {
@@ -242,30 +258,4 @@ public class GameEngine {
             Arrays.fill(ints, GameConstants.INVALID_VALUE);
         }
     }
-
-    private TimerTask mTimerTask = new TimerTask() {
-        @Override
-        public void run() {
-            if (mIsPause) {
-                return;
-            }
-
-            if (needShowNext()) {
-                if (isFailing()) {
-                    if (mScore > mMaxScore) {
-                        SPUtils.setMaxScore(mContext, mScore);
-                    }
-                    iGameInterface.onFailed(mScore);
-                    stopGame();
-                } else {
-                    addNewPiece();
-                    if (needAddScore()) {
-                        iGameInterface.onScoreAdded(mScore);
-                    }
-                }
-            } else {
-                dropDown(false);
-            }
-        }
-    };
 }
