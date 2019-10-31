@@ -1,7 +1,7 @@
 precision highp float;
 varying vec2 fragCoord;
-varying vec4 screen;
-uniform float iTime;
+uniform float screen;
+uniform int data[200];
 
 #define LAND_COUNT 10.0
 #define PORT_COUNT 20.0

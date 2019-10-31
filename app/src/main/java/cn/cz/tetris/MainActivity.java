@@ -7,14 +7,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
 import cn.cz.tetris.game.GameEngine;
 import cn.cz.tetris.music.MusicService;
 import cn.cz.tetris.renderer.GameRenderer;
+import cn.cz.tetris.renderer.IRendererInterface;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements
+        View.OnClickListener,
+        View.OnTouchListener,
+        IRendererInterface {
     private static final String TAG = "MainActivity";
 
     private static final int REQ_SETTING = 1000;
@@ -22,13 +28,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GLSurfaceView mSurfaceView;
     private GameRenderer mRenderer;
     private GameEngine mGameEngine;
+    private GestureDetector mGestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        mGameEngine = new GameEngine();
+        mGameEngine = new GameEngine(this);
         initView(savedInstanceState);
     }
 
@@ -89,14 +96,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        v.performClick();
+        return false;
+    }
+
+    @Override
+    public int[] getBlocksData() {
+        return new int[1];
+    }
+
     private void initView(Bundle savedInstanceState) {
         findViewById(R.id.start_game).setOnClickListener(this);
         findViewById(R.id.setting).setOnClickListener(this);
 
         mSurfaceView = findViewById(R.id.gl_surface_view);
         mSurfaceView.setEGLContextClientVersion(2);
-        mRenderer = new GameRenderer(this);
+        mRenderer = new GameRenderer(this, this);
         mSurfaceView.setRenderer(mRenderer);
+
+        mGestureDetector = new GestureDetector(this, mGestureListener);
+        mSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mSurfaceView.performClick();
+                return false;
+            }
+        });
 
         if (savedInstanceState == null) {
             MusicService.startMusic(this);
@@ -109,4 +136,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.button_layout).setVisibility(View.GONE);
         findViewById(R.id.game_layout).setVisibility(View.VISIBLE);
     }
+
+    private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.OnGestureListener() {
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+        }
+    };
 }

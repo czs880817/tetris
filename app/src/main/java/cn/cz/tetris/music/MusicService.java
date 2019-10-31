@@ -42,31 +42,34 @@ public class MusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        switch (intent.getIntExtra(STR_COMMAND, COMMAND_NONE)) {
-            case COMMAND_START:
-                try {
-                    mMediaPlayer.setDataSource(this, Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.aigei_com));
-                    mMediaPlayer.prepare();
-                    mMediaPlayer.start();
-                    mMediaPlayer.setLooping(true);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case COMMAND_STOP:
-                stopSelf();
-                break;
-            case COMMAND_RESUME:
-                if (!mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.start();
-                }
-                break;
-            case COMMAND_PAUSE:
-                if (mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.pause();
-                }
-                break;
+        if (intent != null) {
+            switch (intent.getIntExtra(STR_COMMAND, COMMAND_NONE)) {
+                case COMMAND_START:
+                    try {
+                        mMediaPlayer.setDataSource(this, Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.aigei_com));
+                        mMediaPlayer.prepare();
+                        mMediaPlayer.start();
+                        mMediaPlayer.setLooping(true);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case COMMAND_STOP:
+                    stopSelf();
+                    break;
+                case COMMAND_RESUME:
+                    if (!mMediaPlayer.isPlaying()) {
+                        mMediaPlayer.start();
+                    }
+                    break;
+                case COMMAND_PAUSE:
+                    if (mMediaPlayer.isPlaying()) {
+                        mMediaPlayer.pause();
+                    }
+                    break;
+            }
         }
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -79,26 +82,26 @@ public class MusicService extends Service {
     }
 
     public static void startMusic(Context context) {
-        Intent intent = new Intent(context, MusicService.class);
-        intent.putExtra(STR_COMMAND, COMMAND_START);
-        context.startService(intent);
+        //Intent intent = new Intent(context, MusicService.class);
+        //intent.putExtra(STR_COMMAND, COMMAND_START);
+        //context.startService(intent);
     }
 
     public static void stopMusic(Context context) {
-        Intent intent = new Intent(context, MusicService.class);
-        intent.putExtra(STR_COMMAND, COMMAND_STOP);
-        context.startService(intent);
+        //Intent intent = new Intent(context, MusicService.class);
+        //intent.putExtra(STR_COMMAND, COMMAND_STOP);
+        //context.startService(intent);
     }
 
     public static void resumeMusic(Context context) {
-        Intent intent = new Intent(context, MusicService.class);
-        intent.putExtra(STR_COMMAND, COMMAND_RESUME);
-        context.startService(intent);
+        //Intent intent = new Intent(context, MusicService.class);
+        //intent.putExtra(STR_COMMAND, COMMAND_RESUME);
+        //context.startService(intent);
     }
 
     public static void pauseMusic(Context context) {
-        Intent intent = new Intent(context, MusicService.class);
-        intent.putExtra(STR_COMMAND, COMMAND_PAUSE);
-        context.startService(intent);
+        //Intent intent = new Intent(context, MusicService.class);
+        //intent.putExtra(STR_COMMAND, COMMAND_PAUSE);
+        //context.startService(intent);
     }
 }

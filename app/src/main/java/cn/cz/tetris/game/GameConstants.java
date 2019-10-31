@@ -3,6 +3,7 @@ package cn.cz.tetris.game;
 public class GameConstants {
     public static final int LAND_SIZE = 10;
     public static final int PORT_SIZE = 20;
+    public static final int PIECE_SIZE = 4;
 
     public static final long TIME_PERIOD = 1000L;
 

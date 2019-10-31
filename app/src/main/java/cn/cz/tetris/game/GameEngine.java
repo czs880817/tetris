@@ -26,7 +26,7 @@ public class GameEngine {
         mMaxScore = SPUtils.getMaxScore(mContext);
         readSetting();
 
-        mBlocks = new int[GameConstants.PORT_SIZE][GameConstants.LAND_SIZE];
+        mBlocks = new int[GameConstants.PORT_SIZE + GameConstants.PIECE_SIZE][GameConstants.LAND_SIZE];
         for (int[] ints : mBlocks) {
             Arrays.fill(ints, 0);
         }

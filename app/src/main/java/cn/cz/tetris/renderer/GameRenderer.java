@@ -12,23 +12,25 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import cn.cz.tetris.R;
+import cn.cz.tetris.game.GameConstants;
 import cn.cz.tetris.utils.DebugLog;
 
 public class GameRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = "GameRenderer";
 
-    private static final float[] SQUARE_COORDS = {
+    private static final float[] SQUARE_COORDINATES = {
             1.0f, -1.0f,
             -1.0f, -1.0f,
             1.0f, 1.0f,
             -1.0f, 1.0f,
     };
-    private static final float[] TEXTURE_COORDS = {
+    private static final float[] TEXTURE_COORDINATES = {
             1.0f, 0.0f,
             0.0f, 0.0f,
             1.0f, 1.0f,
@@ -36,35 +38,37 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     };
 
     private Context mContext;
+    private IRendererInterface iRendererInterface;
 
     private FloatBuffer mVertexBuffer;
     private FloatBuffer mTextureCoordBuffer;
+    private IntBuffer mDataBuffer;
 
     private int mPositionLocation;
     private int mTextureCoordLocation;
-    private int mScreenLocation;
+    private int mDataLocation;
 
-    public GameRenderer(Context context) {
+    public GameRenderer(Context context, IRendererInterface rendererInterface) {
         mContext = context;
+        iRendererInterface = rendererInterface;
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        mVertexBuffer = ByteBuffer.allocateDirect(SQUARE_COORDS.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        mVertexBuffer.put(SQUARE_COORDS);
-        mVertexBuffer.position(0);
-        mTextureCoordBuffer = ByteBuffer.allocateDirect(TEXTURE_COORDS.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        mTextureCoordBuffer.put(TEXTURE_COORDS);
-        mTextureCoordBuffer.position(0);
+        mVertexBuffer = ByteBuffer.allocateDirect(SQUARE_COORDINATES.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mVertexBuffer.put(SQUARE_COORDINATES).position(0);
+        mTextureCoordBuffer = ByteBuffer.allocateDirect(TEXTURE_COORDINATES.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mTextureCoordBuffer.put(TEXTURE_COORDINATES).position(0);
+        mDataBuffer = ByteBuffer.allocateDirect(GameConstants.LAND_SIZE * GameConstants.PORT_SIZE * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
 
         int program = buildProgram();
         GLES20.glUseProgram(program);
 
         mPositionLocation = GLES20.glGetAttribLocation(program, "vPosition");
         mTextureCoordLocation = GLES20.glGetAttribLocation(program, "vTexCoord");
-        mScreenLocation = GLES20.glGetUniformLocation(program, "screen");
+        mDataLocation = GLES20.glGetAttribLocation(program, "data");
     }
 
     @Override
@@ -82,7 +86,15 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         GLES20.glEnableVertexAttribArray(mTextureCoordLocation);
         GLES20.glVertexAttribPointer(mTextureCoordLocation, 2, GLES20.GL_FLOAT, false, 4 * 2, mTextureCoordBuffer);
 
+        if (iRendererInterface != null) {
+            int[] data = iRendererInterface.getBlocksData();
+            mDataBuffer.put(data).position(0);
+            GLES20.glUniform1iv(mDataLocation, data.length, mDataBuffer);
+        }
+
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+        GLES20.glDisableVertexAttribArray(mPositionLocation);
+        GLES20.glDisableVertexAttribArray(mTextureCoordLocation);
 
         GLES20.glFlush();
     }
