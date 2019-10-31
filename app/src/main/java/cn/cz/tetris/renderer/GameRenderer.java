@@ -68,7 +68,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
         mPositionLocation = GLES20.glGetAttribLocation(program, "vPosition");
         mTextureCoordLocation = GLES20.glGetAttribLocation(program, "vTexCoord");
-        mDataLocation = GLES20.glGetAttribLocation(program, "data");
+        mDataLocation = GLES20.glGetUniformLocation(program, "data");
     }
 
     @Override

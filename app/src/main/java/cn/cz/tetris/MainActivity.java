@@ -5,37 +5,37 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
 import cn.cz.tetris.game.GameEngine;
+import cn.cz.tetris.game.IGameInterface;
+import cn.cz.tetris.game.Piece;
 import cn.cz.tetris.music.MusicService;
 import cn.cz.tetris.renderer.GameRenderer;
 import cn.cz.tetris.renderer.IRendererInterface;
+import cn.cz.tetris.view.GameSurfaceView;
 
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
-        View.OnTouchListener,
+        GameSurfaceView.ITouchInterface,
+        IGameInterface,
         IRendererInterface {
     private static final String TAG = "MainActivity";
 
     private static final int REQ_SETTING = 1000;
 
-    private GLSurfaceView mSurfaceView;
+    private GameSurfaceView mSurfaceView;
     private GameRenderer mRenderer;
     private GameEngine mGameEngine;
-    private GestureDetector mGestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        mGameEngine = new GameEngine(this);
+        mGameEngine = new GameEngine(this, this);
         initView(savedInstanceState);
     }
 
@@ -49,13 +49,13 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        mGameEngine.startGame();
+        mGameEngine.resumeGame();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mGameEngine.stopGame();
+        mGameEngine.pauseGame();
     }
 
     @Override
@@ -63,6 +63,12 @@ public class MainActivity extends AppCompatActivity implements
         super.onStop();
         mSurfaceView.onPause();
         MusicService.pauseMusic(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mGameEngine.stopGame();
     }
 
     @Override
@@ -97,14 +103,38 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        v.performClick();
-        return false;
+    public void onRotate() {
+        mGameEngine.rotate();
+    }
+
+    @Override
+    public void onDropDown() {
+        mGameEngine.dropDown(true);
+    }
+
+    @Override
+    public void onTranslate(boolean isLeft) {
+        mGameEngine.translate(isLeft);
+    }
+
+    @Override
+    public void onFailed(int score) {
+
+    }
+
+    @Override
+    public void onPieceChanged(Piece piece) {
+
+    }
+
+    @Override
+    public void onScoreAdded(int score) {
+
     }
 
     @Override
     public int[] getBlocksData() {
-        return new int[1];
+        return mGameEngine.getRendererData();
     }
 
     private void initView(Bundle savedInstanceState) {
@@ -112,18 +142,9 @@ public class MainActivity extends AppCompatActivity implements
         findViewById(R.id.setting).setOnClickListener(this);
 
         mSurfaceView = findViewById(R.id.gl_surface_view);
-        mSurfaceView.setEGLContextClientVersion(2);
+        mSurfaceView.setTouchInterface(this);
         mRenderer = new GameRenderer(this, this);
         mSurfaceView.setRenderer(mRenderer);
-
-        mGestureDetector = new GestureDetector(this, mGestureListener);
-        mSurfaceView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                mSurfaceView.performClick();
-                return false;
-            }
-        });
 
         if (savedInstanceState == null) {
             MusicService.startMusic(this);
@@ -135,37 +156,7 @@ public class MainActivity extends AppCompatActivity implements
     private void startGame() {
         findViewById(R.id.button_layout).setVisibility(View.GONE);
         findViewById(R.id.game_layout).setVisibility(View.VISIBLE);
+
+        mGameEngine.startGame();
     }
-
-    private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.OnGestureListener() {
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public void onShowPress(MotionEvent e) {
-
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return false;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            return false;
-        }
-    };
 }

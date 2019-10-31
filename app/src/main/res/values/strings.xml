@@ -3,4 +3,9 @@
 
     <string name="start_game">Start Game</string>
     <string name="setting_title">Setting</string>
+    <string name="level_setting">Level Setting</string>
+    <string name="speed_setting">Speed Setting</string>
+    <string name="level_normal">Normal</string>
+    <string name="level_hard">Hard</string>
+    <string name="level_nightmare">Nightmare</string>
 </resources>

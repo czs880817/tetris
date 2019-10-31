@@ -1,16 +1,65 @@
 package cn.cz.tetris;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
-public class SettingActivity extends AppCompatActivity {
+import cn.cz.tetris.utils.SPUtils;
+import cn.cz.tetris.view.ViewBox;
+
+public class SettingActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "SettingActivity";
+
+    private ViewBox mViewBox;
+    private TextView mLevelText;
+    private TextView mSpeedText;
+
+    private String[] mLevelStrings;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
+        mViewBox = new ViewBox(this);
+        mLevelStrings = new String[] {
+                getString(R.string.level_normal),
+                getString(R.string.level_hard),
+                getString(R.string.level_nightmare)
+        };
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.setting_title);
+        findViewById(R.id.level_setting).setOnClickListener(this);
+        findViewById(R.id.speed_setting).setOnClickListener(this);
+        mLevelText = findViewById(R.id.level);
+        mSpeedText = findViewById(R.id.speed);
+        mLevelText.setText(mLevelStrings[SPUtils.getLevel(this)]);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.level_setting:
+                mViewBox.showRadioDialog(getString(R.string.level_setting), new ViewBox.IRadioInput() {
+                    @Override
+                    public void onRadioInput(String name) {
+                        for (int i = 0; i != mLevelStrings.length; i++) {
+                            if (name.equals(mLevelStrings[i])) {
+                                SPUtils.setLevel(SettingActivity.this, i);
+                                mLevelText.setText(name);
+                                break;
+                            }
+                        }
+                        setResult(RESULT_OK);
+                    }
+                }, SPUtils.getLevel(this), mLevelStrings);
+                break;
+            case R.id.speed_setting:
+                break;
+        }
     }
 }

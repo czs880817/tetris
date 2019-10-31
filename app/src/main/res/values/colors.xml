@@ -7,4 +7,5 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="button_back">#80F55AEB</color>
+    <color name="setting_line">#C8C7CC</color>
 </resources>

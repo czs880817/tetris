@@ -6,6 +6,10 @@ uniform int data[200];
 #define LAND_COUNT 10.0
 #define PORT_COUNT 20.0
 
+vec3 getColor(int iColor) {
+    return vec3(0.0, 0.0, 1.0);
+}
+
 void main() {
     float fx = 1.0 / LAND_COUNT;
     float fy = 1.0 / PORT_COUNT;
@@ -30,7 +34,10 @@ void main() {
     vec2 center = (lb + rt) / 2.0;
     int index = portIndex * int(LAND_COUNT) + landIndex;
 
-    vec3 color = vec3(0.0, 0.0, mix(1.0, 0.5, distance(center, fragCoord) / distance(center, rt)));
-
-    gl_FragColor = vec4(color, 1.0);
+    if (data[index] == 0) {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    } else {
+        vec3 color = getColor(data[index]);
+        gl_FragColor = vec4(mix(color, color * 0.1, distance(center, fragCoord) / distance(center, rt)), 1.0);
+    }
 }
