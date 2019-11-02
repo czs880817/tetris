@@ -10,6 +10,7 @@ public class SPUtils {
     private static final String KEY_MAX_SCORE = "max_score";
     private static final String KEY_LEVEL = "level";
     private static final String KEY_SPEED = "speed";
+    private static final String KEY_MUSIC = "music";
 
     public static void setMaxScore(Context context, int maxScore) {
         context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE).edit().putInt(KEY_MAX_SCORE, maxScore).apply();
@@ -33,5 +34,13 @@ public class SPUtils {
 
     public static int getSpeed(Context context) {
         return context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE).getInt(KEY_SPEED, GameConstants.SPEED_VERY_SLOW);
+    }
+
+    public static void setMusic(Context context, int musicId) {
+        context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE).edit().putInt(KEY_MUSIC, musicId).apply();
+    }
+
+    public static int getMusic(Context context) {
+        return context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE).getInt(KEY_MUSIC, 0);
     }
 }

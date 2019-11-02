@@ -1,5 +1,6 @@
 package cn.cz.tetris;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -8,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import cn.cz.tetris.music.MusicService;
 import cn.cz.tetris.utils.SPUtils;
 import cn.cz.tetris.utils.Utils;
 import cn.cz.tetris.view.ViewBox;
@@ -45,6 +47,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         mMusicText = findViewById(R.id.music);
         mLevelText.setText(mLevelStrings[SPUtils.getLevel(this)]);
         mSpeedText.setText(mSpeedStrings[Utils.getSpeedIndex(SPUtils.getSpeed(this), mSpeeds)]);
+        mMusicText.setText(mMusicStrings[SPUtils.getMusic(this)]);
     }
 
     @Override
@@ -81,6 +84,21 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 }, Utils.getSpeedIndex(SPUtils.getSpeed(this), mSpeeds), mSpeedStrings);
                 break;
             case R.id.music_setting:
+                mViewBox.showRadioDialog(getString(R.string.music_setting), new ViewBox.IRadioInput() {
+                    @Override
+                    public void onRadioInput(String name) {
+                        for (int i = 0; i != mMusicStrings.length; i++) {
+                            if (name.equals(mMusicStrings[i])) {
+                                SPUtils.setMusic(SettingActivity.this, i);
+                                mMusicText.setText(name);
+                                break;
+                            }
+                        }
+                        Intent intent = new Intent();
+                        intent.putExtra(MusicService.STR_MUSIC_ID, SPUtils.getMusic(SettingActivity.this));
+                        setResult(RESULT_OK, intent);
+                    }
+                }, SPUtils.getMusic(this), mMusicStrings);
                 break;
         }
     }

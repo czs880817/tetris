@@ -1,27 +1,18 @@
 precision highp float;
 varying vec2 fragCoord;
 uniform float screen;
+uniform float time;
+uniform float scoreTime;
+uniform int indexArray[4];
 uniform int data[200];
 
 #define LAND_COUNT 10.0
 #define PORT_COUNT 20.0
 #define COLOR_BASE 256.0
 
-vec3 getColor(int iColor) {
-    float fColor = float(iColor);
-    vec3 res = vec3(0.0);
-
-    float temp = mod(fColor, COLOR_BASE);
-    res.b = temp / COLOR_BASE;
-    fColor = (fColor - temp) / COLOR_BASE;
-
-    temp = mod(fColor, COLOR_BASE);
-    res.g = temp / COLOR_BASE;
-    fColor = (fColor - temp) / COLOR_BASE;
-
-    res.r = fColor / COLOR_BASE;
-    return res;
-}
+#define RED 1
+#define GREEN 2
+#define BLUE 3
 
 void main() {
     float fx = 1.0 / LAND_COUNT;
@@ -47,10 +38,18 @@ void main() {
     vec2 center = (lb + rt) / 2.0;
     int index = portIndex * int(LAND_COUNT) + landIndex;
 
+    vec3 color = vec3(0.0);
     if (data[index] == 0) {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        gl_FragColor = vec4(color, 1.0);
     } else {
-        vec3 color = getColor(data[index]);
+        if (data[index] == RED) {
+            color = vec3(1.0, 0.0, 0.0);
+        } else if (data[index] == GREEN) {
+            color = vec3(0.0, 1.0, 0.0);
+        } else if (data[index] == BLUE) {
+            color = vec3(0.0, 0.0, 1.0);
+        }
+
         gl_FragColor = vec4(mix(color + 0.5, color, distance(center, fragCoord) / distance(center, rt)), 1.0);
     }
 }

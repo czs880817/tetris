@@ -8,9 +8,8 @@ import java.util.Random;
 
 public class Piece implements Parcelable {
     public static final int ROTATE_NONE = 0;
-    public static final int ROTATE_3_LEFT = 1;
-    public static final int ROTATE_3_RIGHT = 2;
-    public static final int ROTATE_4 = 3;
+    public static final int ROTATE_3 = 1;
+    public static final int ROTATE_4 = 2;
 
     public int color;
     public int rotateType;
@@ -62,11 +61,11 @@ public class Piece implements Parcelable {
                 break;
             case 1:
                 blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[1][1] = color;
-                rotateType = ROTATE_3_LEFT;
+                rotateType = ROTATE_3;
                 break;
             case 2:
                 blocks[2][1] = blocks[2][2] = blocks[3][2] = blocks[1][2] = color;
-                rotateType = ROTATE_3_RIGHT;
+                rotateType = ROTATE_3;
                 break;
             case 3:
                 blocks[0][1] = blocks[1][1] = blocks[2][1] = blocks[3][1] = color;
@@ -74,19 +73,19 @@ public class Piece implements Parcelable {
                 break;
             case 4:
                 blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[1][2] = color;
-                rotateType = ROTATE_3_LEFT;
+                rotateType = ROTATE_3;
                 break;
             case 5:
                 blocks[2][1] = blocks[2][2] = blocks[3][2] = blocks[1][1] = color;
-                rotateType = ROTATE_3_RIGHT;
+                rotateType = ROTATE_3;
                 break;
             case 6:
                 blocks[3][1] = blocks[3][2] = blocks[2][1] = blocks[1][1] = color;
-                rotateType = ROTATE_3_LEFT;
+                rotateType = ROTATE_3;
                 break;
             case 7:
                 blocks[3][1] = blocks[3][2] = blocks[2][2] = blocks[1][2] = color;
-                rotateType = ROTATE_3_RIGHT;
+                rotateType = ROTATE_3;
                 break;
             // 困难难度
             case 8:

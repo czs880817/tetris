@@ -33,7 +33,7 @@ public class PieceView extends View {
     }
 
     private void init() {
-
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     }
 
     @Override

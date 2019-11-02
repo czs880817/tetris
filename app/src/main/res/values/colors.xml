@@ -8,4 +8,7 @@
     <color name="black">#000000</color>
     <color name="button_back">#80F55AEB</color>
     <color name="setting_line">#C8C7CC</color>
+    <color name="red">#FF0000</color>
+    <color name="green">#00FF00</color>
+    <color name="blue">#0000FF</color>
 </resources>

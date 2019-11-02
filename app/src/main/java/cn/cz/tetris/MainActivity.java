@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,11 +19,14 @@ import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
 
+import cn.cz.tetris.game.GameConstants;
 import cn.cz.tetris.game.GameEngine;
 import cn.cz.tetris.game.IGameInterface;
 import cn.cz.tetris.game.Piece;
 import cn.cz.tetris.music.MusicService;
 import cn.cz.tetris.renderer.GameRenderer;
+import cn.cz.tetris.utils.DebugLog;
+import cn.cz.tetris.utils.SPUtils;
 import cn.cz.tetris.utils.Utils;
 import cn.cz.tetris.view.GameSurfaceView;
 import cn.cz.tetris.view.PieceView;
@@ -94,8 +98,18 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        MusicService.stopMusic(this);
-        super.onBackPressed();
+        if (mGameEngine.isStarted()) {
+            mViewBox.showDialog(getString(R.string.quit_confirm), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    MusicService.stopMusic(MainActivity.this);
+                    finish();
+                }
+            }, null);
+        } else {
+            MusicService.stopMusic(this);
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -108,6 +122,11 @@ public class MainActivity extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_SETTING && resultCode == RESULT_OK) {
             mGameEngine.readSetting();
+            mLevelText.setText(Utils.getLevelStrings(this)[mGameEngine.getLevel()]);
+            mSpeedText.setText(Utils.getSpeedStrings(this)[Utils.getSpeedIndex(mGameEngine.getSpeed(), Utils.getSpeeds())]);
+            if (data != null && data.getIntExtra(MusicService.STR_MUSIC_ID, GameConstants.INVALID_VALUE) != GameConstants.INVALID_VALUE) {
+                MusicService.startMusic(this, data.getIntExtra(MusicService.STR_MUSIC_ID, GameConstants.INVALID_VALUE));
+            }
         }
     }
 
@@ -167,7 +186,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onScoreAdded(int score) {
+    public void onScoreAdded(int score, int[] indexArray) {
+        DebugLog.i(TAG, "Score: " + score);
         Message message = Message.obtain();
         message.what = MSG_ADD_SCORE;
         message.arg1 = score;
@@ -218,12 +238,14 @@ public class MainActivity extends AppCompatActivity implements
         line.setLayoutParams(layoutParams);
 
         if (savedInstanceState == null) {
-            MusicService.startMusic(this);
+            MusicService.startMusic(this, SPUtils.getMusic(this));
         } else {
 
         }
 
         mScoreText.setText(String.valueOf(mGameEngine.getScore()));
+        mLevelText.setText(Utils.getLevelStrings(this)[mGameEngine.getLevel()]);
+        mSpeedText.setText(Utils.getSpeedStrings(this)[Utils.getSpeedIndex(mGameEngine.getSpeed(), Utils.getSpeeds())]);
     }
 
     private void startGame() {

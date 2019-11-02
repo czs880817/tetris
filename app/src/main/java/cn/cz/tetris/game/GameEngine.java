@@ -28,7 +28,10 @@ public class GameEngine {
     private int[][] mMovingCoordinates;
     private int[] mTempColors;
     private SparseIntArray mTempBorders;
+    private int[] mTempRotateArea;
+    private int[] mIndexArray;
 
+    private boolean mStarted = false;
     private boolean mIsFastMode = false;
     private boolean mGameOver = false;
     private volatile boolean mIsPause = false;
@@ -55,6 +58,8 @@ public class GameEngine {
         mTempColors = new int[GameConstants.PIECE_SIZE * GameConstants.PIECE_SIZE];
         Arrays.fill(mTempColors, 0);
         mTempBorders = new SparseIntArray();
+        mTempRotateArea = new int[4];
+        mIndexArray = new int[GameConstants.PIECE_SIZE];
 
         mPiecePair = new Pair<>(new Piece(), new Piece());
         mPiecePair.first.refresh(mLevel);
@@ -81,6 +86,14 @@ public class GameEngine {
         return mSpeed;
     }
 
+    public int getLevel() {
+        return mLevel;
+    }
+
+    public boolean isStarted() {
+        return mStarted;
+    }
+
     public void run() {
         if (mIsPause || mGameOver) {
             return;
@@ -98,7 +111,7 @@ public class GameEngine {
             } else {
                 addNewPiece();
                 if (needAddScore()) {
-                    iGameInterface.onScoreAdded(mScore);
+                    iGameInterface.onScoreAdded(mScore, mIndexArray);
                 }
             }
         } else {
@@ -107,6 +120,7 @@ public class GameEngine {
     }
 
     public void startGame() {
+        mStarted = true;
         addNewPiece();
     }
 
@@ -160,8 +174,23 @@ public class GameEngine {
 
     public void rotate() {
         Piece piece = mUserFirst ? mPiecePair.first : mPiecePair.second;
-        if (canRotate(piece)) {
+        int[] rotateArea = canRotate(piece);
+        if (rotateArea != null) {
+            for (int i = 0; i != mTempColors.length; i++) {
+                if (mMovingCoordinates[i][0] != GameConstants.INVALID_VALUE) {
+                    mTempColors[i] = mBlocks[mMovingCoordinates[i][0]][mMovingCoordinates[i][1]];
+                    mBlocks[mMovingCoordinates[i][0]][mMovingCoordinates[i][1]] = 0;
+                }
+            }
 
+            for (int i = 0; i != mTempColors.length; i++) {
+                if (mMovingCoordinates[i][0] != GameConstants.INVALID_VALUE) {
+                    int temp = mMovingCoordinates[i][0];
+                    mMovingCoordinates[i][0] = rotateArea[0] + mMovingCoordinates[i][1] - rotateArea[1];
+                    mMovingCoordinates[i][1] = rotateArea[1] + temp - rotateArea[0];
+                    mBlocks[mMovingCoordinates[i][0]][mMovingCoordinates[i][1]] = mTempColors[i];
+                }
+            }
         }
     }
 
@@ -190,19 +219,85 @@ public class GameEngine {
         }
     }
 
-    private boolean canRotate(Piece piece) {
+    private int[] canRotate(Piece piece) {
         if (piece.rotateType == Piece.ROTATE_NONE) {
-            return false;
+            return null;
         }
 
+        mTempRotateArea[0] = mTempRotateArea[1] = Integer.MAX_VALUE;
+        mTempRotateArea[2] = mTempRotateArea[3] = Integer.MIN_VALUE;
         int maxSize = piece.rotateType == Piece.ROTATE_4 ? 4 : 3;
         for (int[] ints : mMovingCoordinates) {
             if (ints[0] != GameConstants.INVALID_VALUE) {
+                if (ints[0] < mTempRotateArea[0]) {
+                    mTempRotateArea[0] = ints[0];
+                }
 
+                if (ints[1] < mTempRotateArea[1]) {
+                    mTempRotateArea[1] = ints[1];
+                }
+
+                if (ints[0] > mTempRotateArea[2]) {
+                    mTempRotateArea[2] = ints[0];
+                }
+
+                if (ints[1] > mTempRotateArea[3]) {
+                    mTempRotateArea[3] = ints[1];
+                }
             }
         }
 
-        return false;
+        if (mTempRotateArea[2] - mTempRotateArea[0] + 1 < maxSize) {
+            int size = maxSize - (mTempRotateArea[2] - mTempRotateArea[0] + 1);
+            for (int i = 0; i != size; i++) {
+                if ((i & 1) == 0) {
+                    if (mTempRotateArea[2] == GameConstants.PORT_SIZE + GameConstants.PIECE_SIZE - 1) {
+                        mTempRotateArea[0]--;
+                    } else {
+                        mTempRotateArea[2]++;
+                    }
+                } else {
+                    mTempRotateArea[0]--;
+                }
+            }
+        } else if (mTempRotateArea[3] - mTempRotateArea[1] + 1 < maxSize) {
+            int size = maxSize - (mTempRotateArea[3] - mTempRotateArea[1] + 1);
+            for (int i = 0; i != size; i++) {
+                if ((i & 1) == 0) {
+                    if (mTempRotateArea[1] == 0) {
+                        mTempRotateArea[3]++;
+                    } else {
+                        mTempRotateArea[1]--;
+                    }
+                } else {
+                    if (mTempRotateArea[3] == GameConstants.LAND_SIZE - 1) {
+                        mTempRotateArea[1]--;
+                    } else {
+                        mTempRotateArea[3]++;
+                    }
+                }
+            }
+        }
+
+        for (int i = mTempRotateArea[0]; i <= mTempRotateArea[2]; i++) {
+            for (int j = mTempRotateArea[1]; j <= mTempRotateArea[3]; j++) {
+                if (mBlocks[i][j] != 0) {
+                    boolean res = false;
+                    for (int[] ints : mMovingCoordinates) {
+                        if (i == ints[0] && j == ints[1]) {
+                            res = true;
+                            break;
+                        }
+                    }
+
+                    if (!res) {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        return mTempRotateArea;
     }
 
     private boolean needShowNext() {
@@ -235,14 +330,21 @@ public class GameEngine {
     }
 
     private boolean needAddScore() {
+        Arrays.fill(mIndexArray, GameConstants.INVALID_VALUE);
         int n = 0;
         for (int i = 0; i != GameConstants.PORT_SIZE; i++) {
             n++;
+            boolean res = true;
             for (int color : mBlocks[i + GameConstants.PIECE_SIZE]) {
                 if (color == 0) {
                     n--;
+                    res = false;
                     break;
                 }
+            }
+
+            if (res) {
+                mIndexArray[n - 1] = i;
             }
         }
 

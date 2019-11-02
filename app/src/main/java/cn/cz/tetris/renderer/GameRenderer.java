@@ -41,6 +41,9 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private Context mContext;
     private GameEngine mGameEngine;
     private int mCount = 0;
+    private float mTime = 0.0f;
+    private float mScoreTime = 0.0f;
+    private int mIndexArray[];
 
     private FloatBuffer mVertexBuffer;
     private FloatBuffer mTextureCoordinateBuffer;
@@ -49,10 +52,14 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private int mPositionLocation;
     private int mTextureCoordinateLocation;
     private int mDataLocation;
+    private int mTimeLocation;
+    private int mScoreTimeLocation;
+    private int mIndexArrayLocation;
 
     public GameRenderer(Context context, GameEngine gameEngine) {
         mContext = context;
         mGameEngine = gameEngine;
+        mIndexArray = new int[GameConstants.PIECE_SIZE];
     }
 
     @Override
@@ -71,6 +78,9 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         mPositionLocation = GLES20.glGetAttribLocation(program, "vPosition");
         mTextureCoordinateLocation = GLES20.glGetAttribLocation(program, "vTexCoord");
         mDataLocation = GLES20.glGetUniformLocation(program, "data");
+        mTimeLocation = GLES20.glGetUniformLocation(program, "time");
+        mScoreTime = GLES20.glGetUniformLocation(program, "scoreTime");
+        mIndexArrayLocation = GLES20.glGetUniformLocation(program, "indexArray");
     }
 
     @Override

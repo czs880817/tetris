@@ -34,7 +34,12 @@ public class Utils {
 
     public static String[] getMusicStrings(Context context) {
         return new String[] {
-                context.getString(R.string.music_origin)
+                context.getString(R.string.music_random),
+                context.getString(R.string.music_origin),
+                context.getString(R.string.music_katyusha),
+                context.getString(R.string.music_victory_day),
+                context.getString(R.string.music_marche_slave),
+                context.getString(R.string.music_red_strong)
         };
     }
 

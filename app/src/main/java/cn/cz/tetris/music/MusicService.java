@@ -10,12 +10,15 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.Random;
 
 import cn.cz.tetris.R;
 import cn.cz.tetris.utils.DebugLog;
 
 public class MusicService extends Service {
     private static final String TAG = "MusicService";
+
+    public static final String STR_MUSIC_ID = "str_music_id";
 
     private static final String STR_COMMAND = "str_command";
 
@@ -26,12 +29,20 @@ public class MusicService extends Service {
     private static final int COMMAND_PAUSE = 4;
 
     private MediaPlayer mMediaPlayer;
+    private int[] mMusicResources;
 
     @Override
     public void onCreate() {
         super.onCreate();
         DebugLog.i(TAG, "MusicService created");
         mMediaPlayer = new MediaPlayer();
+        mMusicResources = new int[] {
+                R.raw.aigei_com,
+                R.raw.kqs,
+                R.raw.slj,
+                R.raw.slfjxq,
+                R.raw.hjzqd
+        };
     }
 
     @Nullable
@@ -46,7 +57,20 @@ public class MusicService extends Service {
             switch (intent.getIntExtra(STR_COMMAND, COMMAND_NONE)) {
                 case COMMAND_START:
                     try {
-                        mMediaPlayer.setDataSource(this, Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.aigei_com));
+                        if (mMediaPlayer.isPlaying()) {
+                            mMediaPlayer.stop();
+                            mMediaPlayer.reset();
+                        }
+
+                        int resourceId;
+                        int index = intent.getIntExtra(STR_MUSIC_ID, 0);
+                        if (index == 0) {
+                            Random random = new Random();
+                            resourceId = mMusicResources[random.nextInt(mMusicResources.length)];
+                        } else {
+                            resourceId = mMusicResources[index - 1];
+                        }
+                        mMediaPlayer.setDataSource(this, Uri.parse("android.resource://" + getPackageName() + "/" + resourceId));
                         mMediaPlayer.prepare();
                         mMediaPlayer.start();
                         mMediaPlayer.setLooping(true);
@@ -81,9 +105,10 @@ public class MusicService extends Service {
         mMediaPlayer.release();
     }
 
-    public static void startMusic(Context context) {
+    public static void startMusic(Context context, int id) {
         Intent intent = new Intent(context, MusicService.class);
         intent.putExtra(STR_COMMAND, COMMAND_START);
+        intent.putExtra(STR_MUSIC_ID, id);
         context.startService(intent);
     }
 
