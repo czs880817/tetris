@@ -7,13 +7,20 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class Piece implements Parcelable {
+    public static final int ROTATE_NONE = 0;
+    public static final int ROTATE_3_LEFT = 1;
+    public static final int ROTATE_3_RIGHT = 2;
+    public static final int ROTATE_4 = 3;
+
     public int color;
+    public int rotateType;
     public int[][] blocks;
 
     private Random mRandom;
 
     public Piece() {
         color = 0;
+        rotateType = ROTATE_NONE;
         blocks = new int[GameConstants.PIECE_SIZE][GameConstants.PIECE_SIZE];
         resetBlocks();
 
@@ -35,13 +42,16 @@ public class Piece implements Parcelable {
                 break;
         }
 
-        int pieceType = mRandom.nextInt(7);
+        int pieceType = 0;
         switch (level) {
             case GameConstants.LEVEL_NORMAL:
+                pieceType = mRandom.nextInt(8);
                 break;
             case GameConstants.LEVEL_HARD:
+                pieceType = mRandom.nextInt(9);
                 break;
             case GameConstants.LEVEL_NIGHTMARE:
+                pieceType = mRandom.nextInt(10);
                 break;
         }
 
@@ -52,21 +62,34 @@ public class Piece implements Parcelable {
                 break;
             case 1:
                 blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[1][1] = color;
+                rotateType = ROTATE_3_LEFT;
                 break;
             case 2:
-                blocks[0][1] = blocks[1][1] = blocks[2][1] = blocks[3][1] = color;
+                blocks[2][1] = blocks[2][2] = blocks[3][2] = blocks[1][2] = color;
+                rotateType = ROTATE_3_RIGHT;
                 break;
             case 3:
-                blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[1][2] = color;
+                blocks[0][1] = blocks[1][1] = blocks[2][1] = blocks[3][1] = color;
+                rotateType = ROTATE_4;
                 break;
             case 4:
-                blocks[2][1] = blocks[2][2] = blocks[3][2] = blocks[1][1] = color;
+                blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[1][2] = color;
+                rotateType = ROTATE_3_LEFT;
                 break;
             case 5:
-                blocks[3][1] = blocks[3][2] = blocks[2][1] = blocks[1][1] = color;
+                blocks[2][1] = blocks[2][2] = blocks[3][2] = blocks[1][1] = color;
+                rotateType = ROTATE_3_RIGHT;
                 break;
             case 6:
+                blocks[3][1] = blocks[3][2] = blocks[2][1] = blocks[1][1] = color;
+                rotateType = ROTATE_3_LEFT;
+                break;
+            case 7:
                 blocks[3][1] = blocks[3][2] = blocks[2][2] = blocks[1][2] = color;
+                rotateType = ROTATE_3_RIGHT;
+                break;
+            // 困难难度
+            case 8:
                 break;
         }
     }
@@ -85,6 +108,7 @@ public class Piece implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(color);
+        dest.writeInt(rotateType);
         int[] ints = new int[GameConstants.PIECE_SIZE * GameConstants.PIECE_SIZE];
         for (int i = 0; i != GameConstants.PIECE_SIZE; i++) {
             for (int j = 0; j != GameConstants.PIECE_SIZE; j++) {
@@ -96,6 +120,7 @@ public class Piece implements Parcelable {
 
     private static void loadParcel(Parcel p, Piece piece) {
         piece.color = p.readInt();
+        piece.rotateType = p.readInt();
         int[] ints = new int[GameConstants.PIECE_SIZE * GameConstants.PIECE_SIZE];
         p.readIntArray(ints);
         for (int i = 0; i != GameConstants.PIECE_SIZE; i++) {

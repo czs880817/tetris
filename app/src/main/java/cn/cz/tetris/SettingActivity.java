@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import cn.cz.tetris.utils.SPUtils;
+import cn.cz.tetris.utils.Utils;
 import cn.cz.tetris.view.ViewBox;
 
 public class SettingActivity extends AppCompatActivity implements View.OnClickListener {
@@ -17,27 +18,33 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     private ViewBox mViewBox;
     private TextView mLevelText;
     private TextView mSpeedText;
+    private TextView mMusicText;
 
     private String[] mLevelStrings;
+    private String[] mSpeedStrings;
+    private String[] mMusicStrings;
+    private int[] mSpeeds;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
         mViewBox = new ViewBox(this);
-        mLevelStrings = new String[] {
-                getString(R.string.level_normal),
-                getString(R.string.level_hard),
-                getString(R.string.level_nightmare)
-        };
+        mLevelStrings = Utils.getLevelStrings(this);
+        mSpeedStrings = Utils.getSpeedStrings(this);
+        mMusicStrings = Utils.getMusicStrings(this);
+        mSpeeds = Utils.getSpeeds();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.setting_title);
         findViewById(R.id.level_setting).setOnClickListener(this);
         findViewById(R.id.speed_setting).setOnClickListener(this);
+        findViewById(R.id.music_setting).setOnClickListener(this);
         mLevelText = findViewById(R.id.level);
         mSpeedText = findViewById(R.id.speed);
+        mMusicText = findViewById(R.id.music);
         mLevelText.setText(mLevelStrings[SPUtils.getLevel(this)]);
+        mSpeedText.setText(mSpeedStrings[Utils.getSpeedIndex(SPUtils.getSpeed(this), mSpeeds)]);
     }
 
     @Override
@@ -59,6 +66,21 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 }, SPUtils.getLevel(this), mLevelStrings);
                 break;
             case R.id.speed_setting:
+                mViewBox.showRadioDialog(getString(R.string.speed_setting), new ViewBox.IRadioInput() {
+                    @Override
+                    public void onRadioInput(String name) {
+                        for (int i = 0; i != mSpeedStrings.length; i++) {
+                            if (name.equals(mSpeedStrings[i])) {
+                                SPUtils.setSpeed(SettingActivity.this, mSpeeds[i]);
+                                mSpeedText.setText(name);
+                                break;
+                            }
+                        }
+                        setResult(RESULT_OK);
+                    }
+                }, Utils.getSpeedIndex(SPUtils.getSpeed(this), mSpeeds), mSpeedStrings);
+                break;
+            case R.id.music_setting:
                 break;
         }
     }

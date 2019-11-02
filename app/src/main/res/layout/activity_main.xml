@@ -11,10 +11,170 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <cn.cz.tetris.view.GameSurfaceView
-            android:id="@+id/gl_surface_view"
+        <LinearLayout
+            android:layout_above="@+id/top_line"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="@string/level"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/level_text"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="@string/score"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/score_text"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="@string/speed"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/speed_text"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:id="@+id/top_line"
+            android:layout_above="@+id/game_detail_layout"
+            android:background="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/line_size"/>
+
+        <RelativeLayout
+            android:id="@+id/game_detail_layout"
+            android:layout_above="@+id/bottom_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/left_line"
+                android:background="@color/white"
+                android:layout_width="@dimen/line_size"
+                android:layout_height="match_parent"/>
+
+            <cn.cz.tetris.view.GameSurfaceView
+                android:id="@+id/gl_surface_view"
+                android:layout_toRightOf="@+id/left_line"
+                android:layout_toEndOf="@+id/left_line"
+                android:layout_toLeftOf="@+id/right_line"
+                android:layout_toStartOf="@+id/right_line"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <View
+                android:id="@+id/right_line"
+                android:layout_toLeftOf="@+id/right_layout"
+                android:layout_toStartOf="@+id/right_layout"
+                android:background="@color/white"
+                android:layout_width="@dimen/line_size"
+                android:layout_height="match_parent"/>
+
+            <LinearLayout
+                android:id="@+id/right_layout"
+                android:gravity="center_horizontal"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="@string/next"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <cn.cz.tetris.view.PieceView
+                    android:id="@+id/piece_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <ImageView
+                    android:id="@+id/pause_image"
+                    android:scaleType="fitCenter"
+                    android:padding="16dp"
+                    android:layout_marginTop="8dp"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <ImageView
+                    android:id="@+id/setting_image"
+                    android:src="@mipmap/baseline_settings_applications_white_36"
+                    android:scaleType="fitCenter"
+                    android:padding="16dp"
+                    android:layout_marginTop="8dp"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/bottom_line"
+            android:layout_alignParentBottom="true"
+            android:background="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/line_size"/>
     </RelativeLayout>
 
     <LinearLayout

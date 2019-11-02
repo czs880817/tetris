@@ -32,6 +32,6 @@ public class SPUtils {
     }
 
     public static int getSpeed(Context context) {
-        return context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE).getInt(KEY_SPEED, GameConstants.SPEED_1);
+        return context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE).getInt(KEY_SPEED, GameConstants.SPEED_VERY_SLOW);
     }
 }

@@ -12,6 +12,12 @@ import cn.cz.tetris.utils.SPUtils;
 public class GameEngine {
     private static final String TAG = "GameEngine";
 
+    private enum MOVE_TYPE {
+        DOWN,
+        LEFT,
+        RIGHT
+    }
+
     private Context mContext;
     private IGameInterface iGameInterface;
 
@@ -27,7 +33,6 @@ public class GameEngine {
     private boolean mGameOver = false;
     private volatile boolean mIsPause = false;
     private int mScore = 0;
-    private int mMaxScore;
 
     // 设置信息
     private int mLevel;
@@ -36,7 +41,6 @@ public class GameEngine {
     public GameEngine(Context context, IGameInterface gameInterface) {
         mContext = context;
         iGameInterface = gameInterface;
-        mMaxScore = SPUtils.getMaxScore(mContext);
         readSetting();
 
         mBlocks = new int[GameConstants.PORT_SIZE + GameConstants.PIECE_SIZE][GameConstants.LAND_SIZE];
@@ -65,6 +69,14 @@ public class GameEngine {
         return mIsFastMode;
     }
 
+    public boolean isPaused() {
+        return mIsPause;
+    }
+
+    public int getScore() {
+        return mScore;
+    }
+
     public int getSpeed() {
         return mSpeed;
     }
@@ -76,10 +88,10 @@ public class GameEngine {
 
         if (needShowNext()) {
             mIsFastMode = false;
-            if (isFailing()) {
+            if (isFailed()) {
                 mGameOver = true;
                 DebugLog.i(TAG, "Game over!");
-                if (mScore > mMaxScore) {
+                if (mScore > SPUtils.getMaxScore(mContext)) {
                     SPUtils.setMaxScore(mContext, mScore);
                 }
                 iGameInterface.onFailed(mScore);
@@ -90,7 +102,7 @@ public class GameEngine {
                 }
             }
         } else {
-            dropDown();
+            move(MOVE_TYPE.DOWN);
         }
     }
 
@@ -130,7 +142,7 @@ public class GameEngine {
             }
 
             if (left != 0) {
-
+                move(MOVE_TYPE.LEFT);
             }
         } else {
             int right = -1;
@@ -141,16 +153,19 @@ public class GameEngine {
             }
 
             if (right != GameConstants.LAND_SIZE - 1) {
-
+                move(MOVE_TYPE.RIGHT);
             }
         }
     }
 
     public void rotate() {
+        Piece piece = mUserFirst ? mPiecePair.first : mPiecePair.second;
+        if (canRotate(piece)) {
 
+        }
     }
 
-    private void dropDown() {
+    private void move(MOVE_TYPE type) {
         for (int i = 0; i != mTempColors.length; i++) {
             if (mMovingCoordinates[i][0] != GameConstants.INVALID_VALUE) {
                 mTempColors[i] = mBlocks[mMovingCoordinates[i][0]][mMovingCoordinates[i][1]];
@@ -160,9 +175,34 @@ public class GameEngine {
 
         for (int i = 0; i != mTempColors.length; i++) {
             if (mMovingCoordinates[i][0] != GameConstants.INVALID_VALUE) {
-                mBlocks[++mMovingCoordinates[i][0]][mMovingCoordinates[i][1]] = mTempColors[i];
+                switch (type) {
+                    case DOWN:
+                        mBlocks[++mMovingCoordinates[i][0]][mMovingCoordinates[i][1]] = mTempColors[i];
+                        break;
+                    case LEFT:
+                        mBlocks[mMovingCoordinates[i][0]][--mMovingCoordinates[i][1]] = mTempColors[i];
+                        break;
+                    case RIGHT:
+                        mBlocks[mMovingCoordinates[i][0]][++mMovingCoordinates[i][1]] = mTempColors[i];
+                        break;
+                }
             }
         }
+    }
+
+    private boolean canRotate(Piece piece) {
+        if (piece.rotateType == Piece.ROTATE_NONE) {
+            return false;
+        }
+
+        int maxSize = piece.rotateType == Piece.ROTATE_4 ? 4 : 3;
+        for (int[] ints : mMovingCoordinates) {
+            if (ints[0] != GameConstants.INVALID_VALUE) {
+
+            }
+        }
+
+        return false;
     }
 
     private boolean needShowNext() {
@@ -184,7 +224,7 @@ public class GameEngine {
         return false;
     }
 
-    private boolean isFailing() {
+    private boolean isFailed() {
         for (int[] ints : mMovingCoordinates) {
             if (ints[0] != GameConstants.INVALID_VALUE && ints[0] < GameConstants.PIECE_SIZE) {
                 return true;

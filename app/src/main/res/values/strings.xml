@@ -5,7 +5,18 @@
     <string name="setting_title">Setting</string>
     <string name="level_setting">Level Setting</string>
     <string name="speed_setting">Speed Setting</string>
+    <string name="music_setting">Music Setting</string>
     <string name="level_normal">Normal</string>
     <string name="level_hard">Hard</string>
     <string name="level_nightmare">Nightmare</string>
+    <string name="score">Score</string>
+    <string name="level">Level</string>
+    <string name="speed">Speed</string>
+    <string name="speed_very_slow">Very Slow</string>
+    <string name="speed_slow">Slow</string>
+    <string name="speed_normal">Normal</string>
+    <string name="speed_fast">Fast</string>
+    <string name="speed_very_fast">Very Fast</string>
+    <string name="music_origin">Origin</string>
+    <string name="next">Next</string>
 </resources>
