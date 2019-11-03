@@ -34,8 +34,8 @@ public class Piece implements Parcelable {
 
     void refresh(int level) {
         resetBlocks();
-        mRandom.setSeed(System.currentTimeMillis());
-        switch (mRandom.nextInt(6)) {
+        long timestamp = System.currentTimeMillis();
+        switch ((int)(timestamp % 6L)) {
             case 0:
                 color = GameConstants.COLOR_RED;
                 break;
@@ -56,78 +56,103 @@ public class Piece implements Parcelable {
                 break;
         }
 
+        mRandom.setSeed(timestamp);
         int pieceType = 0;
         switch (level) {
             case GameConstants.LEVEL_NORMAL:
-                pieceType = mRandom.nextInt(8);
+                pieceType = mRandom.nextInt(7);
                 break;
             case GameConstants.LEVEL_HARD:
-                pieceType = mRandom.nextInt(13);
+                pieceType = mRandom.nextInt(12);
                 break;
             case GameConstants.LEVEL_NIGHTMARE:
-                pieceType = mRandom.nextInt(18);
+                pieceType = mRandom.nextInt(17);
                 break;
         }
 
         switch (pieceType) {
             // 普通难度
             case 0:
+                // O
                 blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[3][2] = color;
+                rotateType = ROTATE_NONE;
                 break;
             case 1:
+                // T
                 blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[1][1] = color;
                 rotateType = ROTATE_3;
                 break;
             case 2:
-                blocks[2][1] = blocks[2][2] = blocks[3][2] = blocks[1][2] = color;
-                rotateType = ROTATE_3;
-                break;
-            case 3:
+                // I
                 blocks[0][1] = blocks[1][1] = blocks[2][1] = blocks[3][1] = color;
                 rotateType = ROTATE_4;
                 break;
-            case 4:
+            case 3:
+                // Z
                 blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[1][2] = color;
                 rotateType = ROTATE_3;
                 break;
-            case 5:
+            case 4:
+                // Z
                 blocks[2][1] = blocks[2][2] = blocks[3][2] = blocks[1][1] = color;
                 rotateType = ROTATE_3;
                 break;
-            case 6:
+            case 5:
+                // L
                 blocks[3][1] = blocks[3][2] = blocks[2][1] = blocks[1][1] = color;
                 rotateType = ROTATE_3;
                 break;
-            case 7:
+            case 6:
+                // L
                 blocks[3][1] = blocks[3][2] = blocks[2][2] = blocks[1][2] = color;
                 rotateType = ROTATE_3;
                 break;
             // 困难难度
-            case 8:
-                blocks[0][1] = blocks[1][1] = blocks[2][1] = blocks[3][1] = blocks[0][2] = blocks[1][2] = blocks[2][2] = blocks[3][2] = color;
+            case 7:
+                blocks[0][1] = blocks[0][2] = blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[3][2] = color;
                 rotateType = ROTATE_4;
                 break;
+            case 8:
+                blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[3][1] = blocks[3][2] = color;
+                rotateType = ROTATE_3;
+                break;
             case 9:
+                blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[2][2] = blocks[3][1] = color;
+                rotateType = ROTATE_3;
                 break;
             case 10:
+                blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[2][2] = blocks[3][2] = color;
+                rotateType = ROTATE_3;
                 break;
             case 11:
-                break;
-            case 12:
+                blocks[0][1] = blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[2][2] = blocks[3][1] = color;
+                rotateType = ROTATE_4;
                 break;
             // 噩梦难度
-            case 13:
+            case 12:
+                // Big O
                 blocks[0][0] = blocks[0][1] = blocks[0][2] = blocks[0][3] = blocks[1][0] = blocks[1][3] = blocks[2][0] = blocks[2][3] = blocks[3][0] = blocks[3][1] = blocks[3][2] = blocks[3][3] = color;
+                rotateType = ROTATE_NONE;
                 break;
-            case 14:
+            case 13:
+                // Big I
                 blocks[0][0] = blocks[0][1] = blocks[0][2] = blocks[0][3] = blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[2][2] = blocks[3][0] = blocks[3][1] = blocks[3][2] = blocks[3][3] = color;
                 rotateType = ROTATE_4;
                 break;
+            case 14:
+                // Big +
+                blocks[0][1] = blocks[0][2] = blocks[1][0] = blocks[1][1] = blocks[1][2] = blocks[1][3] = blocks[2][0] = blocks[2][1] = blocks[2][2] = blocks[2][3] = blocks[3][1] = blocks[3][2] = color;
+                rotateType = ROTATE_NONE;
+                break;
             case 15:
+                // Big Z
+                blocks[0][1] = blocks[0][2] = blocks[0][3] = blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[2][2] = blocks[3][0] = blocks[3][1] = blocks[3][3] = color;
+                rotateType = ROTATE_4;
                 break;
             case 16:
-                break;
-            case 17:
+                // Big Z
+                blocks[0][0] = blocks[0][1] = blocks[0][2] = blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[2][2] = blocks[3][1] = blocks[3][2] = blocks[3][3] = color;
+                rotateType = ROTATE_4;
                 break;
         }
     }

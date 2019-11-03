@@ -1,7 +1,6 @@
 precision highp float;
 varying vec2 fragCoord;
 uniform float screen;
-uniform float time;
 uniform float scoreTime;
 uniform int indexArray[4];
 uniform int data[200];
@@ -63,7 +62,9 @@ void main() {
             color = vec3(0.0, 1.0, 1.0);
         }
 
-        gl_FragColor = vec4(mix(color + 0.5, color, distance(center, fragCoord) / distance(center, rt)), 1.0);
+        float maxValue = max(abs(fragCoord.x - center.x), abs(fragCoord.y - center.y));
+        float d = sqrt(maxValue * maxValue + maxValue * maxValue);
+        gl_FragColor = vec4(mix(color, color * 0.8, d / distance(center, rt)), 1.0);
 
         if (clearMode == 1) {
             bool b = false;
