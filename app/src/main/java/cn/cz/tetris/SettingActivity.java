@@ -48,6 +48,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         mLevelText.setText(mLevelStrings[SPUtils.getLevel(this)]);
         mSpeedText.setText(mSpeedStrings[Utils.getSpeedIndex(SPUtils.getSpeed(this), mSpeeds)]);
         mMusicText.setText(mMusicStrings[SPUtils.getMusic(this)]);
+
+        TextView maxScoreText = findViewById(R.id.max_score);
+        maxScoreText.setText(String.valueOf(SPUtils.getMaxScore(this)));
     }
 
     @Override

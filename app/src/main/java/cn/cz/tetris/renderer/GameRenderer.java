@@ -17,6 +17,7 @@ import java.nio.IntBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import cn.cz.tetris.BuildConfig;
 import cn.cz.tetris.R;
 import cn.cz.tetris.game.GameConstants;
 import cn.cz.tetris.game.GameEngine;
@@ -58,6 +59,8 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private int mScoreTimeLocation;
     private int mIndexArrayLocation;
     private int mClearModeLocation;
+
+    private int mFPS = 0;
 
     public GameRenderer(Context context, GameEngine gameEngine) {
         mContext = context;
@@ -137,11 +140,21 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         GLES20.glDisableVertexAttribArray(mTextureCoordinateLocation);
 
         GLES20.glFlush();
+
+        if (BuildConfig.DEBUG) {
+            mFPS++;
+        }
     }
 
     public void startClear(int[] indexArray) {
         mClearMode = true;
         mIndexArray = indexArray;
+    }
+
+    public int getFPS() {
+        int res = mFPS;
+        mFPS = 0;
+        return res;
     }
 
     private int buildProgram() {

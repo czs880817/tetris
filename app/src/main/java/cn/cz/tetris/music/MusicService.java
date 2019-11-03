@@ -15,7 +15,7 @@ import java.util.Random;
 import cn.cz.tetris.R;
 import cn.cz.tetris.utils.DebugLog;
 
-public class MusicService extends Service {
+public class MusicService extends Service implements MediaPlayer.OnCompletionListener {
     private static final String TAG = "MusicService";
 
     public static final String STR_MUSIC_ID = "str_music_id";
@@ -30,12 +30,15 @@ public class MusicService extends Service {
 
     private MediaPlayer mMediaPlayer;
     private int[] mMusicResources;
+    private int mIndex = 0;
+    private boolean mStarted = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
         DebugLog.i(TAG, "MusicService created");
         mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setOnCompletionListener(this);
         mMusicResources = new int[] {
                 R.raw.aigei_com,
                 R.raw.kqs,
@@ -56,24 +59,30 @@ public class MusicService extends Service {
         if (intent != null) {
             switch (intent.getIntExtra(STR_COMMAND, COMMAND_NONE)) {
                 case COMMAND_START:
+                    int index = intent.getIntExtra(STR_MUSIC_ID, 0);
+                    if (mStarted && mIndex == index) {
+                        break;
+                    }
+
                     try {
-                        if (mMediaPlayer.isPlaying()) {
+                        if (mMediaPlayer.isPlaying() || mIndex != index) {
                             mMediaPlayer.stop();
                             mMediaPlayer.reset();
                         }
+                        mIndex = index;
 
                         int resourceId;
-                        int index = intent.getIntExtra(STR_MUSIC_ID, 0);
-                        if (index == 0) {
+                        if (mIndex == 0) {
                             Random random = new Random();
                             resourceId = mMusicResources[random.nextInt(mMusicResources.length)];
                         } else {
-                            resourceId = mMusicResources[index - 1];
+                            resourceId = mMusicResources[mIndex - 1];
                         }
                         mMediaPlayer.setDataSource(this, Uri.parse("android.resource://" + getPackageName() + "/" + resourceId));
                         mMediaPlayer.prepare();
                         mMediaPlayer.start();
-                        mMediaPlayer.setLooping(true);
+                        mMediaPlayer.setLooping(mIndex != 0);
+                        mStarted = true;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -82,12 +91,12 @@ public class MusicService extends Service {
                     stopSelf();
                     break;
                 case COMMAND_RESUME:
-                    if (!mMediaPlayer.isPlaying()) {
+                    if (mStarted && !mMediaPlayer.isPlaying()) {
                         mMediaPlayer.start();
                     }
                     break;
                 case COMMAND_PAUSE:
-                    if (mMediaPlayer.isPlaying()) {
+                    if (mStarted && mMediaPlayer.isPlaying()) {
                         mMediaPlayer.pause();
                     }
                     break;
@@ -103,6 +112,22 @@ public class MusicService extends Service {
         DebugLog.i(TAG, "MusicService destroyed");
         mMediaPlayer.stop();
         mMediaPlayer.release();
+        mStarted = false;
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        if (mIndex == 0) {
+            mMediaPlayer.reset();
+            Random random = new Random();
+            try {
+                mMediaPlayer.setDataSource(this, Uri.parse("android.resource://" + getPackageName() + "/" + mMusicResources[random.nextInt(mMusicResources.length)]));
+                mMediaPlayer.prepare();
+                mMediaPlayer.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void startMusic(Context context, int id) {

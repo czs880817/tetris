@@ -14,15 +14,20 @@ public class ViewBox {
     }
 
     public void showDialog(String message, DialogInterface.OnClickListener onClickListener, DialogInterface.OnClickListener cancelListener) {
-        if (TextUtils.isEmpty(message)) {
-            return;
-        }
+        showDialog(null, message, onClickListener, cancelListener);
+    }
+
+    public void showDialog(String title, String message, DialogInterface.OnClickListener onClickListener, DialogInterface.OnClickListener cancelListener) {
         dismissDialog();
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder.setMessage(message);
-        builder.setNegativeButton(android.R.string.cancel, cancelListener);
-        builder.setPositiveButton(android.R.string.ok, onClickListener);
-        mAlertDialog = builder.create();
+        if (!TextUtils.isEmpty(title)) {
+            builder.setTitle(title);
+        }
+        mAlertDialog = builder
+                .setMessage(message)
+                .setNegativeButton(android.R.string.cancel, cancelListener)
+                .setPositiveButton(android.R.string.ok, onClickListener)
+                .create();
         mAlertDialog.show();
     }
 

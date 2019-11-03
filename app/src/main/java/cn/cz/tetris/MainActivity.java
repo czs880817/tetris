@@ -18,6 +18,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cn.cz.tetris.game.GameConstants;
 import cn.cz.tetris.game.GameEngine;
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final int MSG_CHANGE_PIECE = 0;
     private static final int MSG_FAILED = 1;
     private static final int MSG_ADD_SCORE = 2;
+    private static final int MSG_FPS = 3;
 
     private static final int REQ_SETTING = 1000;
 
@@ -55,6 +58,9 @@ public class MainActivity extends AppCompatActivity implements
     private TextView mSpeedText;
     private ImageView mPauseImage;
     private PieceView mPieceView;
+
+    private TextView mFPSText;
+    private Timer mTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,40 +78,55 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         mSurfaceView.onResume();
-        MusicService.resumeMusic(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         mPauseImage.setImageResource(R.mipmap.baseline_pause_white_36);
         mGameEngine.resumeGame();
-    }
+        MusicService.resumeMusic(this);
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mPauseImage.setImageResource(R.mipmap.baseline_play_arrow_white_36);
-        mGameEngine.pauseGame();
+        if (BuildConfig.DEBUG && mTimer == null) {
+            mTimer = new Timer();
+            mTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    Message message = Message.obtain();
+                    message.what = MSG_FPS;
+                    message.arg1 = mRenderer.getFPS();
+                    mHandler.sendMessage(message);
+                }
+            }, GameConstants.FPS_TIME_PERIOD, GameConstants.FPS_TIME_PERIOD);
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         mSurfaceView.onPause();
+        mPauseImage.setImageResource(R.mipmap.baseline_play_arrow_white_36);
+        mGameEngine.pauseGame();
         MusicService.pauseMusic(this);
+
+        if (BuildConfig.DEBUG && mTimer != null) {
+            mTimer.cancel();
+            mTimer.purge();
+            mTimer = null;
+        }
     }
 
     @Override
     public void onBackPressed() {
         if (mGameEngine.isStarted()) {
+            mGameEngine.pauseGame();
             mViewBox.showDialog(getString(R.string.quit_confirm), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     MusicService.stopMusic(MainActivity.this);
                     finish();
                 }
-            }, null);
+            }, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    mGameEngine.resumeGame();
+                }
+            });
         } else {
             MusicService.stopMusic(this);
             super.onBackPressed();
@@ -115,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        mGameEngine.onSave(outState);
     }
 
     @Override
@@ -242,12 +264,18 @@ public class MainActivity extends AppCompatActivity implements
         if (savedInstanceState == null) {
             MusicService.startMusic(this, SPUtils.getMusic(this));
         } else {
-
+            mGameEngine.onLoad(savedInstanceState);
+            if (mGameEngine.isStarted()) {
+                findViewById(R.id.button_layout).setVisibility(View.GONE);
+                findViewById(R.id.game_layout).setVisibility(View.VISIBLE);
+            }
         }
 
         mScoreText.setText(String.valueOf(mGameEngine.getScore()));
         mLevelText.setText(Utils.getLevelStrings(this)[mGameEngine.getLevel()]);
         mSpeedText.setText(Utils.getSpeedStrings(this)[Utils.getSpeedIndex(mGameEngine.getSpeed(), Utils.getSpeeds())]);
+
+        mFPSText = findViewById(R.id.fps_text);
     }
 
     private void startGame() {
@@ -267,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void dispatchMessage(Message msg) {
             super.dispatchMessage(msg);
-            MainActivity activity = mReference.get();
+            final MainActivity activity = mReference.get();
             if (activity != null) {
                 switch (msg.what) {
                     case MSG_CHANGE_PIECE:
@@ -276,9 +304,27 @@ public class MainActivity extends AppCompatActivity implements
                         }
                         break;
                     case MSG_FAILED:
+                        activity.mViewBox.showDialog(activity.getString(R.string.game_over),
+                                activity.getString(R.string.game_over_hint), new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        activity.mGameEngine.reset();
+                                        activity.mGameEngine.startGame();
+                                    }
+                                }, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        activity.mGameEngine.reset();
+                                        activity.findViewById(R.id.button_layout).setVisibility(View.VISIBLE);
+                                        activity.findViewById(R.id.game_layout).setVisibility(View.GONE);
+                                    }
+                                });
                         break;
                     case MSG_ADD_SCORE:
                         activity.mScoreText.setText(String.valueOf(msg.arg1));
+                        break;
+                    case MSG_FPS:
+                        activity.mFPSText.setText(activity.getString(R.string.fps, msg.arg1));
                         break;
                 }
             }

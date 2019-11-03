@@ -65,7 +65,7 @@ public class GameSurfaceView extends GLSurfaceView implements View.OnTouchListen
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             mDistance += distanceX;
-            if ((int)Math.abs(mDistance) >= getWidth() / GameConstants.LAND_SIZE) {
+            if ((int)Math.abs(mDistance) >= getWidth() / GameConstants.LAND_SIZE && (int)distanceY < getHeight() / GameConstants.PORT_SIZE) {
                 iTouchInterface.onTranslate(mDistance > 0.0f);
                 mDistance = 0.0f;
             }

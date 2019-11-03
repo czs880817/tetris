@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">テトリス</string>
+
+    <string name="start_game">ゲーム開始</string>
+    <string name="setting_title">設定</string>
+    <string name="level_setting">レベル設定</string>
+    <string name="speed_setting">スピード設定</string>
+    <string name="music_setting">音楽設定</string>
+    <string name="level_normal">普通</string>
+    <string name="level_hard">困難</string>
+    <string name="level_nightmare">悪夢</string>
+    <string name="score">得点</string>
+    <string name="level">レベル</string>
+    <string name="speed">スピード</string>
+    <string name="speed_very_slow">とても遅い</string>
+    <string name="speed_slow">遅い</string>
+    <string name="speed_normal">普通</string>
+    <string name="speed_fast">速い</string>
+    <string name="speed_very_fast">とても速い</string>
+    <string name="next">次</string>
+    <string name="music_random">ランダム</string>
+    <string name="music_origin">テトリス</string>
+    <string name="music_katyusha">カチューシャ</string>
+    <string name="music_victory_day">戦勝記念日</string>
+    <string name="music_marche_slave">スラヴ行進曲</string>
+    <string name="music_red_strong">赤軍に勝る者なし</string>
+    <string name="quit_confirm">ゲームを終了しますか？</string>
+    <string name="game_over">ゲーム終了</string>
+    <string name="game_over_hint">もう一回やり直しますか？</string>
+    <string name="max_score">最高得点</string>
+</resources>

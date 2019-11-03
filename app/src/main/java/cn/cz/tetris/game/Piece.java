@@ -26,10 +26,16 @@ public class Piece implements Parcelable {
         mRandom = new Random();
     }
 
+    void reset() {
+        color = 0;
+        rotateType = ROTATE_NONE;
+        resetBlocks();
+    }
+
     void refresh(int level) {
         resetBlocks();
         mRandom.setSeed(System.currentTimeMillis());
-        switch (mRandom.nextInt(3)) {
+        switch (mRandom.nextInt(6)) {
             case 0:
                 color = GameConstants.COLOR_RED;
                 break;
@@ -39,6 +45,15 @@ public class Piece implements Parcelable {
             case 2:
                 color = GameConstants.COLOR_BLUE;
                 break;
+            case 3:
+                color = GameConstants.COLOR_YELLOW;
+                break;
+            case 4:
+                color = GameConstants.COLOR_PINK;
+                break;
+            case 5:
+                color = GameConstants.COLOR_WATER;
+                break;
         }
 
         int pieceType = 0;
@@ -47,10 +62,10 @@ public class Piece implements Parcelable {
                 pieceType = mRandom.nextInt(8);
                 break;
             case GameConstants.LEVEL_HARD:
-                pieceType = mRandom.nextInt(9);
+                pieceType = mRandom.nextInt(13);
                 break;
             case GameConstants.LEVEL_NIGHTMARE:
-                pieceType = mRandom.nextInt(10);
+                pieceType = mRandom.nextInt(18);
                 break;
         }
 
@@ -89,6 +104,30 @@ public class Piece implements Parcelable {
                 break;
             // 困难难度
             case 8:
+                blocks[0][1] = blocks[1][1] = blocks[2][1] = blocks[3][1] = blocks[0][2] = blocks[1][2] = blocks[2][2] = blocks[3][2] = color;
+                rotateType = ROTATE_4;
+                break;
+            case 9:
+                break;
+            case 10:
+                break;
+            case 11:
+                break;
+            case 12:
+                break;
+            // 噩梦难度
+            case 13:
+                blocks[0][0] = blocks[0][1] = blocks[0][2] = blocks[0][3] = blocks[1][0] = blocks[1][3] = blocks[2][0] = blocks[2][3] = blocks[3][0] = blocks[3][1] = blocks[3][2] = blocks[3][3] = color;
+                break;
+            case 14:
+                blocks[0][0] = blocks[0][1] = blocks[0][2] = blocks[0][3] = blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[2][2] = blocks[3][0] = blocks[3][1] = blocks[3][2] = blocks[3][3] = color;
+                rotateType = ROTATE_4;
+                break;
+            case 15:
+                break;
+            case 16:
+                break;
+            case 17:
                 break;
         }
     }

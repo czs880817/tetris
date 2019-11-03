@@ -1,6 +1,7 @@
 package cn.cz.tetris.game;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Pair;
 import android.util.SparseIntArray;
 
@@ -71,7 +72,6 @@ public class GameEngine {
 
         mPiecePair = new Pair<>(new Piece(), new Piece());
         mPiecePair.first.refresh(mLevel);
-        mPiecePair.second.refresh(mLevel);
     }
 
     public void setFastMode() {
@@ -100,6 +100,14 @@ public class GameEngine {
 
     public boolean isStarted() {
         return mStarted;
+    }
+
+    public void onSave(Bundle outState) {
+
+    }
+
+    public void onLoad(Bundle savedInstanceState) {
+
     }
 
     public void run() {
@@ -133,7 +141,19 @@ public class GameEngine {
     }
 
     public void reset() {
-
+        mStarted = false;
+        mIsFastMode = false;
+        mGameOver = false;
+        mIsPause = false;
+        mScore = 0;
+        mPiecePair.first.reset();
+        mPiecePair.second.reset();
+        mUserFirst = true;
+        resetMovingCoordinates();
+        for (int[] ints : mBlocks) {
+            Arrays.fill(ints, 0);
+        }
+        mPiecePair.first.refresh(mLevel);
     }
 
     public void resumeGame() {
@@ -239,6 +259,10 @@ public class GameEngine {
     }
 
     public void rotate() {
+        if (mIsPause) {
+            return;
+        }
+
         Piece piece = mUserFirst ? mPiecePair.first : mPiecePair.second;
         int[] rotateArea = canRotate(piece);
         if (rotateArea != null) {
@@ -269,19 +293,12 @@ public class GameEngine {
         }
 
         int offset = 0;
-        for (int i : mIndexArray) {
-            if (i != GameConstants.INVALID_VALUE) {
-                mArrayList.remove(GameConstants.PORT_SIZE - i - offset - 1);
+        for (int i = mIndexArray.length - 1; i >= 0; i--) {
+            if (mIndexArray[i] != GameConstants.INVALID_VALUE) {
+                int[] array = mArrayList.remove(GameConstants.PORT_SIZE - mIndexArray[i] - offset - 1);
                 offset++;
-            }
-        }
-
-        if (mArrayList.size() < GameConstants.PORT_SIZE) {
-            int count = GameConstants.PORT_SIZE - mArrayList.size();
-            for (int i = 0; i != count; i++) {
-                int[] ints = new int[GameConstants.LAND_SIZE];
-                Arrays.fill(ints, 0);
-                mArrayList.add(ints);
+                Arrays.fill(array, 0);
+                mArrayList.add(array);
             }
         }
 
@@ -293,6 +310,10 @@ public class GameEngine {
     }
 
     private void move(MOVE_TYPE type) {
+        if (mIsPause) {
+            return;
+        }
+
         for (int i = 0; i != mTempColors.length; i++) {
             if (mMovingCoordinates[i][0] != GameConstants.INVALID_VALUE) {
                 mTempColors[i] = mBlocks[mMovingCoordinates[i][0]][mMovingCoordinates[i][1]];
@@ -465,7 +486,6 @@ public class GameEngine {
     }
 
     private void addNewPiece() {
-        mUserFirst = !mUserFirst;
         Piece currentPiece, nextPiece;
         if (mUserFirst) {
             currentPiece = mPiecePair.first;
@@ -491,6 +511,7 @@ public class GameEngine {
                 }
             }
         }
+        mUserFirst = !mUserFirst;
     }
 
     private void resetMovingCoordinates() {

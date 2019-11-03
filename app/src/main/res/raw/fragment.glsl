@@ -17,6 +17,9 @@ uniform int clearMode;
 #define RED 1
 #define GREEN 2
 #define BLUE 3
+#define YELLOW 4
+#define PINK 5
+#define WATER 6
 
 void main() {
     float fx = 1.0 / LAND_COUNT;
@@ -52,6 +55,12 @@ void main() {
             color = vec3(0.0, 1.0, 0.0);
         } else if (data[index] == BLUE) {
             color = vec3(0.0, 0.0, 1.0);
+        } else if (data[index] == YELLOW) {
+            color = vec3(1.0, 1.0, 0.0);
+        } else if (data[index] == PINK) {
+            color = vec3(1.0, 0.0, 1.0);
+        } else if (data[index] == WATER) {
+            color = vec3(0.0, 1.0, 1.0);
         }
 
         gl_FragColor = vec4(mix(color + 0.5, color, distance(center, fragCoord) / distance(center, rt)), 1.0);

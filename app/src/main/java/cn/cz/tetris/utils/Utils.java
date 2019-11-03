@@ -10,10 +10,6 @@ public class Utils {
         return context.getResources().getDisplayMetrics().widthPixels;
     }
 
-    public static int getDisplayHeight(Context context) {
-        return context.getResources().getDisplayMetrics().heightPixels;
-    }
-
     public static String[] getLevelStrings(Context context) {
         return new String[] {
                 context.getString(R.string.level_normal),
@@ -69,7 +65,10 @@ public class Utils {
                 0,
                 context.getResources().getColor(R.color.red),
                 context.getResources().getColor(R.color.green),
-                context.getResources().getColor(R.color.blue)
+                context.getResources().getColor(R.color.blue),
+                context.getResources().getColor(R.color.yellow),
+                context.getResources().getColor(R.color.pink),
+                context.getResources().getColor(R.color.water)
         };
     }
 }

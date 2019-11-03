@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">俄罗斯方块</string>
+
+    <string name="start_game">开始游戏</string>
+    <string name="setting_title">设置</string>
+    <string name="level_setting">等级设置</string>
+    <string name="speed_setting">速度设置</string>
+    <string name="music_setting">音乐设置</string>
+    <string name="level_normal">普通</string>
+    <string name="level_hard">困难</string>
+    <string name="level_nightmare">噩梦</string>
+    <string name="score">分数</string>
+    <string name="level">难度</string>
+    <string name="speed">速度</string>
+    <string name="speed_very_slow">很慢</string>
+    <string name="speed_slow">慢</string>
+    <string name="speed_normal">普通</string>
+    <string name="speed_fast">快</string>
+    <string name="speed_very_fast">很快</string>
+    <string name="next">下一个</string>
+    <string name="music_random">随机</string>
+    <string name="music_origin">俄罗斯方块</string>
+    <string name="music_katyusha">喀秋莎</string>
+    <string name="music_victory_day">胜利节</string>
+    <string name="music_marche_slave">斯拉夫进行曲</string>
+    <string name="music_red_strong">红军最强大</string>
+    <string name="quit_confirm">想要退出游戏吗？</string>
+    <string name="game_over">游戏结束！</string>
+    <string name="game_over_hint">想要再试一次吗？</string>
+    <string name="max_score">最高分</string>
+</resources>

@@ -19,10 +19,15 @@
     <string name="speed_very_fast">Very Fast</string>
     <string name="next">Next</string>
     <string name="music_random">Random</string>
-    <string name="music_origin">Origin</string>
+    <string name="music_origin">Tetris</string>
     <string name="music_katyusha">Катюша</string>
     <string name="music_victory_day">День Победы</string>
     <string name="music_marche_slave">Marche Slave</string>
     <string name="music_red_strong">Красная Армия всех сильней</string>
     <string name="quit_confirm">Do you want to quit this game?</string>
+    <string name="game_over">Game Over!</string>
+    <string name="game_over_hint">Do you want to try again?</string>
+    <string name="max_score">Max Score</string>
+
+    <string name="fps" translatable="false">FPS: %d</string>
 </resources>

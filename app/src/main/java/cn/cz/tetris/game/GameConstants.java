@@ -20,4 +20,9 @@ public class GameConstants {
     public static final int COLOR_RED = 1;
     public static final int COLOR_GREEN = 2;
     public static final int COLOR_BLUE = 3;
+    public static final int COLOR_YELLOW = 4;
+    public static final int COLOR_PINK = 5;
+    public static final int COLOR_WATER = 6;
+
+    public static final long FPS_TIME_PERIOD = 1000L;
 }
