@@ -43,11 +43,13 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private int mCount = 0;
     private float mTime = 0.0f;
     private float mScoreTime = 0.0f;
-    private int mIndexArray[];
+    private int[] mIndexArray;
+    private boolean mClearMode = false;
 
     private FloatBuffer mVertexBuffer;
     private FloatBuffer mTextureCoordinateBuffer;
     private IntBuffer mDataBuffer;
+    private IntBuffer mIndexArrayBuffer;
 
     private int mPositionLocation;
     private int mTextureCoordinateLocation;
@@ -55,6 +57,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private int mTimeLocation;
     private int mScoreTimeLocation;
     private int mIndexArrayLocation;
+    private int mClearModeLocation;
 
     public GameRenderer(Context context, GameEngine gameEngine) {
         mContext = context;
@@ -71,6 +74,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         mTextureCoordinateBuffer = ByteBuffer.allocateDirect(TEXTURE_COORDINATES.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         mTextureCoordinateBuffer.put(TEXTURE_COORDINATES).position(0);
         mDataBuffer = ByteBuffer.allocateDirect(GameConstants.LAND_SIZE * GameConstants.PORT_SIZE * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
+        mIndexArrayBuffer = ByteBuffer.allocateDirect(GameConstants.PIECE_SIZE * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
 
         int program = buildProgram();
         GLES20.glUseProgram(program);
@@ -79,8 +83,9 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         mTextureCoordinateLocation = GLES20.glGetAttribLocation(program, "vTexCoord");
         mDataLocation = GLES20.glGetUniformLocation(program, "data");
         mTimeLocation = GLES20.glGetUniformLocation(program, "time");
-        mScoreTime = GLES20.glGetUniformLocation(program, "scoreTime");
+        mScoreTimeLocation = GLES20.glGetUniformLocation(program, "scoreTime");
         mIndexArrayLocation = GLES20.glGetUniformLocation(program, "indexArray");
+        mClearModeLocation = GLES20.glGetUniformLocation(program, "clearMode");
     }
 
     @Override
@@ -98,24 +103,45 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         GLES20.glEnableVertexAttribArray(mTextureCoordinateLocation);
         GLES20.glVertexAttribPointer(mTextureCoordinateLocation, 2, GLES20.GL_FLOAT, false, 4 * 2, mTextureCoordinateBuffer);
 
-        if (mGameEngine.isFastMode()) {
-            mGameEngine.run();
-        } else if (mCount == mGameEngine.getSpeed()) {
-            mCount = 0;
-            mGameEngine.run();
+        if (mClearMode) {
+            if (mScoreTime > Math.PI / 2) {
+                mClearMode = false;
+                mScoreTime = 0.0f;
+                mGameEngine.clearLines();
+            } else {
+                mScoreTime += 0.05f;
+            }
         } else {
-            mCount++;
+            if (mGameEngine.isFastMode()) {
+                mGameEngine.run();
+            } else if (mCount == mGameEngine.getSpeed()) {
+                mCount = 0;
+                mGameEngine.run();
+            } else {
+                mCount++;
+            }
         }
 
         int[] data = mGameEngine.getRendererData();
         mDataBuffer.put(data).position(0);
         GLES20.glUniform1iv(mDataLocation, data.length, mDataBuffer);
+        mIndexArrayBuffer.put(mIndexArray).position(0);
+        GLES20.glUniform1iv(mIndexArrayLocation, mIndexArray.length, mIndexArrayBuffer);
+
+        GLES20.glUniform1f(mTimeLocation, mTime);
+        GLES20.glUniform1f(mScoreTimeLocation, mScoreTime);
+        GLES20.glUniform1i(mClearModeLocation, mClearMode ? 1 : 0);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
         GLES20.glDisableVertexAttribArray(mPositionLocation);
         GLES20.glDisableVertexAttribArray(mTextureCoordinateLocation);
 
         GLES20.glFlush();
+    }
+
+    public void startClear(int[] indexArray) {
+        mClearMode = true;
+        mIndexArray = indexArray;
     }
 
     private int buildProgram() {

@@ -63,4 +63,13 @@ public class Utils {
         }
         return index;
     }
+
+    public static int[] getColors(Context context) {
+        return new int[] {
+                0,
+                context.getResources().getColor(R.color.red),
+                context.getResources().getColor(R.color.green),
+                context.getResources().getColor(R.color.blue)
+        };
+    }
 }

@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onFailed(int score) {
+        DebugLog.i(TAG, "Game over: " + score);
         Message message = Message.obtain();
         message.what = MSG_FAILED;
         message.arg1 = score;
@@ -188,6 +189,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onScoreAdded(int score, int[] indexArray) {
         DebugLog.i(TAG, "Score: " + score);
+        mRenderer.startClear(indexArray);
         Message message = Message.obtain();
         message.what = MSG_ADD_SCORE;
         message.arg1 = score;

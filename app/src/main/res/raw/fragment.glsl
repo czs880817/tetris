@@ -5,10 +5,14 @@ uniform float time;
 uniform float scoreTime;
 uniform int indexArray[4];
 uniform int data[200];
+uniform int clearMode;
 
 #define LAND_COUNT 10.0
 #define PORT_COUNT 20.0
 #define COLOR_BASE 256.0
+
+#define PORT_SIZE 20
+#define PIECE_SIZE 4
 
 #define RED 1
 #define GREEN 2
@@ -51,5 +55,19 @@ void main() {
         }
 
         gl_FragColor = vec4(mix(color + 0.5, color, distance(center, fragCoord) / distance(center, rt)), 1.0);
+
+        if (clearMode == 1) {
+            bool b = false;
+            for (int i = 0; i != PIECE_SIZE; i++) {
+                if (PORT_SIZE - indexArray[i] - 1 == portIndex) {
+                    b = true;
+                    break;
+                }
+            }
+
+            if (b) {
+                gl_FragColor += (1.0 - cos(scoreTime));
+            }
+        }
     }
 }

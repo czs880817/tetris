@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Pair;
 import android.util.SparseIntArray;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import cn.cz.tetris.utils.DebugLog;
@@ -30,6 +31,8 @@ public class GameEngine {
     private SparseIntArray mTempBorders;
     private int[] mTempRotateArea;
     private int[] mIndexArray;
+    private int[][] mTranslateBorders;
+    private ArrayList<int[]> mArrayList;
 
     private boolean mStarted = false;
     private boolean mIsFastMode = false;
@@ -60,6 +63,11 @@ public class GameEngine {
         mTempBorders = new SparseIntArray();
         mTempRotateArea = new int[4];
         mIndexArray = new int[GameConstants.PIECE_SIZE];
+        mTranslateBorders = new int[GameConstants.PIECE_SIZE][2];
+        mArrayList = new ArrayList<>();
+        for (int i = 0; i != GameConstants.PORT_SIZE; i++) {
+            mArrayList.add(new int[GameConstants.LAND_SIZE]);
+        }
 
         mPiecePair = new Pair<>(new Piece(), new Piece());
         mPiecePair.first.refresh(mLevel);
@@ -124,6 +132,10 @@ public class GameEngine {
         addNewPiece();
     }
 
+    public void reset() {
+
+    }
+
     public void resumeGame() {
         mIsPause = false;
     }
@@ -147,16 +159,47 @@ public class GameEngine {
     }
 
     public void translate(boolean isLeft) {
+        if (mIsFastMode) {
+            return;
+        }
+
+        for (int[] ints : mTranslateBorders) {
+            ints[0] = ints[1] = GameConstants.INVALID_VALUE;
+        }
+
         if (isLeft) {
             int left = GameConstants.LAND_SIZE;
             for (int[] ints : mMovingCoordinates) {
                 if (ints[1] != GameConstants.INVALID_VALUE && ints[1] < left) {
                     left = ints[1];
                 }
+
+                for (int i = 0; i != GameConstants.PIECE_SIZE; i++) {
+                    if (mTranslateBorders[i][0] == GameConstants.INVALID_VALUE) {
+                        mTranslateBorders[i][0] = ints[0];
+                        mTranslateBorders[i][1] = ints[1];
+                        break;
+                    } else if (mTranslateBorders[i][0] == ints[0]) {
+                        if (ints[1] < mTranslateBorders[i][1]) {
+                            mTranslateBorders[i][1] = ints[1];
+                        }
+                        break;
+                    }
+                }
             }
 
             if (left != 0) {
-                move(MOVE_TYPE.LEFT);
+                boolean b = true;
+                for (int[] ints : mTranslateBorders) {
+                    if (ints[0] != GameConstants.INVALID_VALUE && mBlocks[ints[0]][ints[1] - 1] != 0) {
+                        b = false;
+                        break;
+                    }
+                }
+
+                if (b) {
+                    move(MOVE_TYPE.LEFT);
+                }
             }
         } else {
             int right = -1;
@@ -164,10 +207,33 @@ public class GameEngine {
                 if (ints[1] != GameConstants.INVALID_VALUE && ints[1] > right) {
                     right = ints[1];
                 }
+
+                for (int i = 0; i != GameConstants.PIECE_SIZE; i++) {
+                    if (mTranslateBorders[i][0] == GameConstants.INVALID_VALUE) {
+                        mTranslateBorders[i][0] = ints[0];
+                        mTranslateBorders[i][1] = ints[1];
+                        break;
+                    } else if (mTranslateBorders[i][0] == ints[0]) {
+                        if (ints[1] > mTranslateBorders[i][1]) {
+                            mTranslateBorders[i][1] = ints[1];
+                        }
+                        break;
+                    }
+                }
             }
 
             if (right != GameConstants.LAND_SIZE - 1) {
-                move(MOVE_TYPE.RIGHT);
+                boolean b = true;
+                for (int[] ints : mTranslateBorders) {
+                    if (ints[0] != GameConstants.INVALID_VALUE && mBlocks[ints[0]][ints[1] + 1] != 0) {
+                        b = false;
+                        break;
+                    }
+                }
+
+                if (b) {
+                    move(MOVE_TYPE.RIGHT);
+                }
             }
         }
     }
@@ -183,13 +249,45 @@ public class GameEngine {
                 }
             }
 
+            int maxSize = piece.rotateType == Piece.ROTATE_4 ? 4 : 3;
             for (int i = 0; i != mTempColors.length; i++) {
                 if (mMovingCoordinates[i][0] != GameConstants.INVALID_VALUE) {
-                    int temp = mMovingCoordinates[i][0];
+                    int offset = mMovingCoordinates[i][0] - rotateArea[0];
                     mMovingCoordinates[i][0] = rotateArea[0] + mMovingCoordinates[i][1] - rotateArea[1];
-                    mMovingCoordinates[i][1] = rotateArea[1] + temp - rotateArea[0];
+                    mMovingCoordinates[i][1] = rotateArea[1] + (maxSize - 1 - offset);
                     mBlocks[mMovingCoordinates[i][0]][mMovingCoordinates[i][1]] = mTempColors[i];
                 }
+            }
+        }
+    }
+
+    public void clearLines() {
+        for (int i = 0; i != GameConstants.PORT_SIZE; i++) {
+            for (int j = 0; j != GameConstants.LAND_SIZE; j++) {
+                mArrayList.get(i)[j] = mBlocks[GameConstants.PORT_SIZE + GameConstants.PIECE_SIZE - i - 1][j];
+            }
+        }
+
+        int offset = 0;
+        for (int i : mIndexArray) {
+            if (i != GameConstants.INVALID_VALUE) {
+                mArrayList.remove(GameConstants.PORT_SIZE - i - offset - 1);
+                offset++;
+            }
+        }
+
+        if (mArrayList.size() < GameConstants.PORT_SIZE) {
+            int count = GameConstants.PORT_SIZE - mArrayList.size();
+            for (int i = 0; i != count; i++) {
+                int[] ints = new int[GameConstants.LAND_SIZE];
+                Arrays.fill(ints, 0);
+                mArrayList.add(ints);
+            }
+        }
+
+        for (int i = 0; i != GameConstants.PORT_SIZE; i++) {
+            for (int j = 0; j != GameConstants.LAND_SIZE; j++) {
+                mBlocks[GameConstants.PORT_SIZE + GameConstants.PIECE_SIZE - i - 1][j] = mArrayList.get(i)[j];
             }
         }
     }
