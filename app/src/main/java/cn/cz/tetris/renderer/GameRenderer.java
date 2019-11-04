@@ -114,7 +114,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         } else {
             if (mGameEngine.isFastMode()) {
                 mGameEngine.run();
-            } else if (mCount == mGameEngine.getSpeed()) {
+            } else if (mCount >= mGameEngine.getSpeed()) {
                 mCount = 0;
                 mGameEngine.run();
             } else {
