@@ -45,6 +45,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private float mScoreTime = 0.0f;
     private int[] mIndexArray;
     private boolean mClearMode = false;
+    private float mTime = 0.0f;
 
     private FloatBuffer mVertexBuffer;
     private FloatBuffer mTextureCoordinateBuffer;
@@ -57,6 +58,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private int mScoreTimeLocation;
     private int mIndexArrayLocation;
     private int mClearModeLocation;
+    private int mTimeLocation;
 
     private int mFPS = 0;
 
@@ -86,6 +88,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         mScoreTimeLocation = GLES20.glGetUniformLocation(program, "scoreTime");
         mIndexArrayLocation = GLES20.glGetUniformLocation(program, "indexArray");
         mClearModeLocation = GLES20.glGetUniformLocation(program, "clearMode");
+        mTimeLocation = GLES20.glGetUniformLocation(program, "time");
     }
 
     @Override
@@ -130,6 +133,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
         GLES20.glUniform1f(mScoreTimeLocation, mScoreTime);
         GLES20.glUniform1i(mClearModeLocation, mClearMode ? 1 : 0);
+        GLES20.glUniform1f(mTimeLocation, mTime);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
         GLES20.glDisableVertexAttribArray(mPositionLocation);

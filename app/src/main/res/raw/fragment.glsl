@@ -7,6 +7,7 @@ uniform int indexArray[4];
 uniform int data[200];
 // 是否需要做消除演示
 uniform int clearMode;
+uniform float time;
 
 #define LAND_COUNT 10.0
 #define PORT_COUNT 20.0

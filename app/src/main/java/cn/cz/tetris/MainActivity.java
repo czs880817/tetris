@@ -268,6 +268,7 @@ public class MainActivity extends AppCompatActivity implements
             if (mGameEngine.isStarted()) {
                 findViewById(R.id.button_layout).setVisibility(View.GONE);
                 findViewById(R.id.game_layout).setVisibility(View.VISIBLE);
+                mPieceView.setPiece(mGameEngine.getNextPiece());
             }
         }
 

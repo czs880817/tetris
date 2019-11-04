@@ -26,7 +26,7 @@ public class GameEngine {
     private int[][] mBlocks;
     private int[] mRendererData;
     private Pair<Piece, Piece> mPiecePair;
-    private boolean mUserFirst = false;
+    private boolean mUseFirst = false;
     private int[][] mMovingCoordinates;
     private int[] mTempColors;
     private SparseIntArray mTempBorders;
@@ -102,12 +102,115 @@ public class GameEngine {
         return mStarted;
     }
 
-    public void onSave(Bundle outState) {
+    public Piece getNextPiece() {
+        return mUseFirst ? mPiecePair.second : mPiecePair.first;
+    }
 
+    public void onSave(Bundle outState) {
+        int[] blocks = new int[GameConstants.LAND_SIZE * (GameConstants.PORT_SIZE + GameConstants.PIECE_SIZE)];
+        for (int i = 0; i != GameConstants.PORT_SIZE + GameConstants.PIECE_SIZE; i++) {
+            for (int j = 0; j != GameConstants.LAND_SIZE; j++) {
+                blocks[i * GameConstants.LAND_SIZE + j] = mBlocks[i][j];
+            }
+        }
+        outState.putIntArray("blocks", blocks);
+        outState.putIntArray("renderer_data", mRendererData);
+        outState.putParcelable("piece_first", mPiecePair.first);
+        outState.putParcelable("piece_second", mPiecePair.second);
+        outState.putBoolean("use_first", mUseFirst);
+        int[] movingCoordinates = new int[GameConstants.PIECE_SIZE * GameConstants.PIECE_SIZE * 2];
+        for (int i = 0; i != GameConstants.PIECE_SIZE * GameConstants.PIECE_SIZE; i++) {
+            for (int j = 0; j != 2; j++) {
+                movingCoordinates[i * 2 + j] = mMovingCoordinates[i][j];
+            }
+        }
+        outState.putIntArray("moving_coordinates", movingCoordinates);
+        outState.putIntArray("temp_colors", mTempColors);
+        int size = mTempBorders.size();
+        if (size != 0) {
+            int[] keys = new int[size];
+            int[] values = new int[size];
+            for (int i = 0; i != size; i++) {
+                keys[i] = mTempBorders.keyAt(i);
+                values[i] = mTempBorders.get(keys[i]);
+            }
+            outState.putIntArray("temp_borders_keys", keys);
+            outState.putIntArray("temp_borders_values", values);
+        }
+        outState.putIntArray("temp_rotate_area", mTempRotateArea);
+        outState.putIntArray("index_array", mIndexArray);
+        int[] translateBorders = new int[GameConstants.PIECE_SIZE * 2];
+        for (int i = 0; i != GameConstants.PIECE_SIZE; i++) {
+            for (int j = 0; j != 2; j++) {
+                translateBorders[i * 2 + j] = mTranslateBorders[i][j];
+            }
+        }
+        outState.putIntArray("translate_borders", translateBorders);
+        int[] arrayList = new int[GameConstants.LAND_SIZE * GameConstants.PORT_SIZE];
+        for (int i = 0; i != GameConstants.PORT_SIZE; i++) {
+            for (int j = 0; j != GameConstants.LAND_SIZE; j++) {
+                arrayList[i * GameConstants.LAND_SIZE + j] = mArrayList.get(i)[j];
+            }
+        }
+        outState.putIntArray("array_list", arrayList);
+        outState.putBoolean("started", mStarted);
+        outState.putBoolean("is_fast_mode", mIsFastMode);
+        outState.putBoolean("game_over", mGameOver);
+        outState.putBoolean("is_pause", mIsPause);
+        outState.putInt("score", mScore);
     }
 
     public void onLoad(Bundle savedInstanceState) {
-
+        int[] blocks = savedInstanceState.getIntArray("blocks");
+        if (blocks != null) {
+            for (int i = 0; i != GameConstants.PORT_SIZE + GameConstants.PIECE_SIZE; i++) {
+                for (int j = 0; j != GameConstants.LAND_SIZE; j++) {
+                    mBlocks[i][j] = blocks[i * GameConstants.LAND_SIZE + j];
+                }
+            }
+        }
+        mRendererData = savedInstanceState.getIntArray("renderer_data");
+        mPiecePair = new Pair<>((Piece)savedInstanceState.getParcelable("piece_first"), (Piece)savedInstanceState.getParcelable("piece_second"));
+        mUseFirst = savedInstanceState.getBoolean("use_first");
+        int[] movingCoordinates = savedInstanceState.getIntArray("moving_coordinates");
+        if (movingCoordinates != null) {
+            for (int i = 0; i != GameConstants.PIECE_SIZE * GameConstants.PIECE_SIZE; i++) {
+                for (int j = 0; j != 2; j++) {
+                    mMovingCoordinates[i][j] = movingCoordinates[i * 2 + j];
+                }
+            }
+        }
+        mTempColors = savedInstanceState.getIntArray("temp_colors");
+        int[] keys = savedInstanceState.getIntArray("temp_borders_keys");
+        int[] values = savedInstanceState.getIntArray("temp_borders_values");
+        if (keys != null && values != null) {
+            for (int i = 0; i != keys.length; i++) {
+                mTempBorders.put(keys[i], values[i]);
+            }
+        }
+        mTempRotateArea = savedInstanceState.getIntArray("temp_rotate_area");
+        mIndexArray = savedInstanceState.getIntArray("index_array");
+        int[] translateBorders = savedInstanceState.getIntArray("translate_borders");
+        if (translateBorders != null) {
+            for (int i = 0; i != GameConstants.PIECE_SIZE; i++) {
+                for (int j = 0; j != 2; j++) {
+                    mTranslateBorders[i][j] = translateBorders[i * 2 + j];
+                }
+            }
+        }
+        int[] arrayList = savedInstanceState.getIntArray("array_list");
+        if (arrayList != null) {
+            for (int i = 0; i != GameConstants.PORT_SIZE; i++) {
+                for (int j = 0; j != GameConstants.LAND_SIZE; j++) {
+                    mArrayList.get(i)[j] = arrayList[i * GameConstants.LAND_SIZE + j];
+                }
+            }
+        }
+        mStarted = savedInstanceState.getBoolean("started");
+        mIsFastMode = savedInstanceState.getBoolean("is_fast_mode");
+        mGameOver = savedInstanceState.getBoolean("game_over");
+        mIsPause = savedInstanceState.getBoolean("is_pause");
+        mScore = savedInstanceState.getInt("score");
     }
 
     public void run() {
@@ -148,7 +251,7 @@ public class GameEngine {
         mScore = 0;
         mPiecePair.first.reset();
         mPiecePair.second.reset();
-        mUserFirst = false;
+        mUseFirst = false;
         resetMovingCoordinates();
         for (int[] ints : mBlocks) {
             Arrays.fill(ints, 0);
@@ -263,7 +366,7 @@ public class GameEngine {
             return;
         }
 
-        Piece piece = mUserFirst ? mPiecePair.first : mPiecePair.second;
+        Piece piece = mUseFirst ? mPiecePair.first : mPiecePair.second;
         int[] rotateArea = canRotate(piece);
         if (rotateArea != null) {
             for (int i = 0; i != mTempColors.length; i++) {
@@ -487,8 +590,8 @@ public class GameEngine {
 
     private void addNewPiece() {
         Piece currentPiece, nextPiece;
-        mUserFirst = !mUserFirst;
-        if (mUserFirst) {
+        mUseFirst = !mUseFirst;
+        if (mUseFirst) {
             currentPiece = mPiecePair.first;
             nextPiece = mPiecePair.second;
         } else {
