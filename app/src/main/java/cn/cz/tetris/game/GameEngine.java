@@ -26,7 +26,7 @@ public class GameEngine {
     private int[][] mBlocks;
     private int[] mRendererData;
     private Pair<Piece, Piece> mPiecePair;
-    private boolean mUserFirst = true;
+    private boolean mUserFirst = false;
     private int[][] mMovingCoordinates;
     private int[] mTempColors;
     private SparseIntArray mTempBorders;
@@ -148,7 +148,7 @@ public class GameEngine {
         mScore = 0;
         mPiecePair.first.reset();
         mPiecePair.second.reset();
-        mUserFirst = true;
+        mUserFirst = false;
         resetMovingCoordinates();
         for (int[] ints : mBlocks) {
             Arrays.fill(ints, 0);
@@ -487,6 +487,7 @@ public class GameEngine {
 
     private void addNewPiece() {
         Piece currentPiece, nextPiece;
+        mUserFirst = !mUserFirst;
         if (mUserFirst) {
             currentPiece = mPiecePair.first;
             nextPiece = mPiecePair.second;
@@ -511,7 +512,6 @@ public class GameEngine {
                 }
             }
         }
-        mUserFirst = !mUserFirst;
     }
 
     private void resetMovingCoordinates() {

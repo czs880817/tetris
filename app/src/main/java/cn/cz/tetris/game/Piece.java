@@ -146,7 +146,7 @@ public class Piece implements Parcelable {
                 break;
             case 15:
                 // Big Z
-                blocks[0][1] = blocks[0][2] = blocks[0][3] = blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[2][2] = blocks[3][0] = blocks[3][1] = blocks[3][3] = color;
+                blocks[0][1] = blocks[0][2] = blocks[0][3] = blocks[1][1] = blocks[1][2] = blocks[2][1] = blocks[2][2] = blocks[3][0] = blocks[3][1] = blocks[3][2] = color;
                 rotateType = ROTATE_4;
                 break;
             case 16:

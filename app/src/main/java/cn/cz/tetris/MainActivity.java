@@ -309,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         activity.mGameEngine.reset();
+                                        activity.mScoreText.setText(String.valueOf(activity.mGameEngine.getScore()));
                                         activity.mGameEngine.startGame();
                                     }
                                 }, new DialogInterface.OnClickListener() {
